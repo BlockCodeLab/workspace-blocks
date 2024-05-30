@@ -1,0 +1,37 @@
+blocks.menu.file: File
+blocks.menu.file.newProject: New
+blocks.menu.file.openProject: Open
+blocks.menu.file.saveProject: Save
+blocks.menu.file.uploadProject: Load from your computer
+blocks.menu.file.downloadProject: Save to your computer
+blocks.menu.edit: Edit
+blocks.menu.edit.undo: Undo
+blocks.menu.edit.redo: Redo
+blocks.menu.device: Device
+blocks.menu.device.name: device
+blocks.menu.device.connect: Connect to your {name}
+blocks.menu.device.disconnect: Disconnect this {name}
+blocks.menu.device.download: Download program
+blocks.menu.device.turnOnAutoDownload: Turn on Auto Download
+blocks.menu.device.turnOffAutoDownload: Turn off Auto Download
+
+blocks.alert.downloading: Downloading...{progress}%
+blocks.alert.downloadCompleted: Download completed.
+
+blocks.codeTab: Code
+
+blocks.monitorPane.title: Monitor
+
+blocks.downloadToDevice: Download
+blocks.extensions.addExtension: Add Extension
+blocks.extensions.empty: No extension!
+
+blocks.dataPrompt.forAllTargets: For all targets
+blocks.dataPrompt.forThisTarget: For this target only
+blocks.dataPrompt.availableToAllTargets: This variable will be available to all targets.
+blocks.dataPrompt.listAvailableToAllTargets: This list will be available to all targets.
+blocks.dataPrompt.cancel: Cancel
+blocks.dataPrompt.ok: OK
+
+blocks.event.programStart: when program start
+blocks.control.stopOther: other scripts

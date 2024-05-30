@@ -1,0 +1,32 @@
+{
+  "name": "@blockcode/workspace-blocks",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./app": {
+      "import": "./dist/app.js",
+      "require": "./dist/app.js"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "build": "bun-build",
+    "dev": "bun-build --watch ./src"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "bun-loader-yaml": "link:bun-loader-yaml",
+    "bun-loader-css": "link:bun-loader-css"
+  },
+  "dependencies": {
+    "preact": "^10.18.1",
+    "save-svg-as-png": "^1.4.17",
+    "@blockcode/core": "workspace:*",
+    "@blockcode/ui": "workspace:*",
+    "@blockcode/device-pyboard": "workspace:*",
+    "@blockcode/blocks-editor": "workspace:*"
+  }
+}

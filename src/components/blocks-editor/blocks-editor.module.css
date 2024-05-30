@@ -1,0 +1,68 @@
+.editor-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: inherit;
+}
+
+.extension-button {
+  height: 3.25rem;
+  position: absolute;
+  bottom: -1;
+  left: -1;
+  z-index: var(--z-index-extension-button);
+  background: var(--motion-primary);
+  border: 1px solid var(--motion-primary);
+  border-top: 0;
+  box-sizing: content-box;
+  border-bottom-left-radius: inherit;
+}
+
+.extension-button:before {
+  --fade-out-distance: 15px;
+
+  content: '';
+  position: absolute;
+  top: calc(calc(-1 * var(--fade-out-distance)));
+  left: 0;
+  right: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15));
+  height: var(--fade-out-distance);
+}
+
+.add-button {
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.add-button img {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* debug box */
+
+.debug-box {
+  position: absolute;
+  width: 600px;
+  height: 300px;
+  bottom: 0;
+  left: 50vw;
+  transform: translateX(-50%);
+  z-index: var(--z-index-monitor);
+  background: white;
+  border: 1px solid var(--ui-tertiary);
+  border-bottom: 0;
+  border-radius: var(--space) var(--space) 0 0;
+  opacity: 0.8;
+  overflow: auto;
+  font-size: var(--standard-font-size);
+}
+
+.debug-box pre {
+  margin: calc(var(--space) / 2);
+}
