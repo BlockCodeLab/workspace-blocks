@@ -13,11 +13,11 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
   const { addAsset } = useEditor();
 
   const handleFilter = (extensionInfo) => {
+    const tags = extensionInfo.tags || [];
     let filter = ['blocks', 'dupont', ['3v3', '5v']];
     if (onFilter) {
       filter = onFilter(tags);
     }
-    const tags = extensionInfo.tags || [];
     if (Array.isArray(filter)) {
       return filter.every((subfilter) => {
         if (Array.isArray(subfilter)) {
