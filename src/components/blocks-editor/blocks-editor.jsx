@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { useLocale, useLayout, useEditor } from '@blockcode/core';
 import { classNames } from '@blockcode/ui';
 import { BlocksEditor as Editor, ScratchBlocks, makeToolboxXML } from '@blockcode/blocks-editor';
@@ -113,18 +113,59 @@ export default function BlocksEditor({
     ...(messages || []),
   };
 
-  ScratchBlocks.prompt = (message, defaultValue, callback, optTitle, optVarType) => {
-    const prompt = { callback, message, defaultValue };
-    prompt.title = optTitle ? optTitle : ScratchBlocks.Msg.VARIABLE_MODAL_TITLE;
-    prompt.varType = typeof optVarType === 'string' ? optVarType : ScratchBlocks.SCALAR_VARIABLE_TYPE;
-    prompt.showVariableOptions = // This flag means that we should show variable/list options about scope
-      enableMultiTargets &&
-      optVarType !== ScratchBlocks.BROADCAST_MESSAGE_VARIABLE_TYPE &&
-      prompt.title !== ScratchBlocks.Msg.RENAME_VARIABLE_MODAL_TITLE &&
-      prompt.title !== ScratchBlocks.Msg.RENAME_LIST_MODAL_TITLE;
-    prompt.showCloudOption = optVarType === ScratchBlocks.SCALAR_VARIABLE_TYPE && this.props.canUseCloud;
-    setDataPrompt(prompt);
-  };
+  useEffect(() => {
+    ScratchBlocks.prompt = (message, defaultValue, callback, optTitle, optVarType) => {
+      const prompt = { callback, message, defaultValue };
+      prompt.title = optTitle ? optTitle : ScratchBlocks.Msg.VARIABLE_MODAL_TITLE;
+      prompt.varType = typeof optVarType === 'string' ? optVarType : ScratchBlocks.SCALAR_VARIABLE_TYPE;
+      prompt.showVariableOptions = // This flag means that we should show variable/list options about scope
+        enableMultiTargets &&
+        optVarType !== ScratchBlocks.BROADCAST_MESSAGE_VARIABLE_TYPE &&
+        prompt.title !== ScratchBlocks.Msg.RENAME_VARIABLE_MODAL_TITLE &&
+        prompt.title !== ScratchBlocks.Msg.RENAME_LIST_MODAL_TITLE;
+      prompt.showCloudOption = optVarType === ScratchBlocks.SCALAR_VARIABLE_TYPE && this.props.canUseCloud;
+      setDataPrompt(prompt);
+    };
+
+    ScratchBlocks.FlyoutExtensionCategoryHeader.getExtensionState = (extensionId) => {
+      if (loadedExtensions.has(extensionId)) {
+        const extensionObject = loadedExtensions.get(extensionId);
+        if (
+          extensionObject.connectionConfig?.items.every((item) =>
+            localStorage.getItem(`${extensionObject.id}.connection.${item.id}`),
+          )
+        ) {
+          return ScratchBlocks.StatusButtonState.READY;
+        }
+      }
+      return ScratchBlocks.StatusButtonState.NOT_READY;
+    };
+
+    ScratchBlocks.statusButtonCallback = (extensionId) => {
+      if (!loadedExtensions.has(extensionId)) return;
+      const extensionObject = loadedExtensions.get(extensionId);
+      const { connectionConfig } = extensionObject;
+      if (!connectionConfig) return;
+      createPrompt({
+        title: extensionObject.name,
+        label: connectionConfig.title,
+        inputMode: connectionConfig.items.map((item) => ({
+          name: item.id,
+          placeholder: item.text,
+          defaultValue: localStorage.getItem(`${extensionObject.id}.connection.${item.id}`),
+        })),
+        content: connectionConfig.description,
+        onSubmit: (value) => {
+          Object.entries(value).forEach(([key, val]) => {
+            localStorage.setItem(`${extensionObject.id}.connection.${key}`, `${val}`);
+          });
+          if (workspace) {
+            ScratchBlocks.refreshStatusButtons(workspace);
+          }
+        },
+      });
+    };
+  }, [workspace]);
 
   // global variables
   let globalVariables;

@@ -59,6 +59,9 @@ export default function (extensionObject, isStage, maybeLocaleText, buttonWrappe
   let categoryXML = `<category name="${xmlEscape(extensionName)}" id="${xmlEscape(extensionId)}"`;
   categoryXML += ` colour="${xmlEscape(extensionObject.themeColor || THEME_COLOR)}"`;
   categoryXML += ` secondaryColour="${xmlEscape(extensionObject.inputColor || INPUT_COLOR)}"`;
+  if (extensionObject.connectionConfig) {
+    categoryXML += ` showStatusButton="true"`;
+  }
   if (extensionObject.iconURI) {
     categoryXML += ` iconURI="${xmlEscape(extensionObject.iconURI)}"`;
   }
