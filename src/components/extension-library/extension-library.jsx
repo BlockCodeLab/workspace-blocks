@@ -14,7 +14,7 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
 
   const handleFilter = (extensionInfo) => {
     const tags = extensionInfo.tags || [];
-    let filter = ['blocks', 'dupont', ['3v3', '5v']];
+    let filter = ['blocks', ['dupont', 'data'], ['3v3', '5v']];
     if (onFilter) {
       filter = onFilter(tags);
     }
@@ -37,6 +37,7 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
             {
               ...extensionInfo,
               featured: true,
+              disabled: extensionInfo.disabled || (!DEVELOPMENT && extensionInfo.preview),
               onSelect: async () => {
                 createAlert('importing', { id: extensionInfo.id });
                 let { default: extensionObject } = await import(`@blockcode/extension-${extensionInfo.id}/blocks`);
