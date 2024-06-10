@@ -2,6 +2,7 @@ import featureImage from './feature.png';
 
 export default {
   preview: true,
+  sortIndex: 2,
   image: featureImage,
   name: 'MicroPython Blocks',
   description: 'A wonderful world of building blocks.',
