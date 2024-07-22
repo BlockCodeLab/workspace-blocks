@@ -62,7 +62,7 @@ export default function BlocksEditor({
 }) {
   const { addLocaleData, getText, maybeLocaleText } = useLocale();
   const { splash, createPrompt, createAlert, removeAlert, setSplash } = useLayout();
-  const { editor, fileList, selectedIndex, openFile, modifyFile, modifyAsset, setModified } = useEditor();
+  const { editor, fileList, selectedFileId, openFile, modifyFile, modifyAsset, setModified } = useEditor();
 
   const [workspace, setWorkspace] = useState();
   const [dataPrompt, setDataPrompt] = useState(false);
@@ -92,7 +92,8 @@ export default function BlocksEditor({
           if (!file.content) {
             projectBlocksReady = false;
             setTimeout(() => {
-              openFile((i + fileList.length) % fileList.length);
+              const idx = (i + fileList.length) % fileList.length;
+              openFile(fileList[idx].id);
             }, 100);
             break;
           }
@@ -188,7 +189,7 @@ export default function BlocksEditor({
   }
 
   let toolboxXML = defaultToolbox || makeToolboxXML();
-  const isStage = selectedIndex === 0;
+  const isStage = selectedFileId === fileList[0].id;
   const buttonWrapper = (onClick) =>
     onClick.bind(null, {
       context: useEditor(),
@@ -247,7 +248,7 @@ export default function BlocksEditor({
           messages={messages}
           globalVariables={globalVariables}
           onWorkspaceCreated={setWorkspace}
-          onChange={selectedIndex !== -1 ? handleChange : null}
+          onChange={selectedFileId !== null ? handleChange : null}
         />
         {disableExtension ? null : (
           <div className={classNames('scratchCategoryMenu', styles.extensionButton)}>
@@ -288,7 +289,7 @@ export default function BlocksEditor({
 
       {DEVELOPMENT && !disableGenerator && (
         <div className={styles.debugBox}>
-          <pre>{fileList[selectedIndex].content}</pre>
+          <pre>{fileList.find((file) => file.id === selectedFileId).content}</pre>
         </div>
       )}
     </>
