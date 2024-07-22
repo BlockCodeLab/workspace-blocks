@@ -37,5 +37,5 @@ pythonGenerator['event_broadcast'] = (block) => {
 
 pythonGenerator['event_broadcastandwait'] = (block) => {
   const messageName = pythonGenerator.valueToCode(block, 'BROADCAST_INPUT', pythonGenerator.ORDER_NONE) || '"message1"';
-  return `await runtime.broadcast("${messageName}")\n`;
+  return `await runtime.broadcast("${messageName}", waiting=True)\n`;
 };
