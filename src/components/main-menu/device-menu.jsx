@@ -8,7 +8,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
   const [downloadDisabled, setDownloadDisabled] = useState(false);
   const { maybeLocaleText } = useLocale();
   const { createAlert, removeAlert } = useLayout();
-  const { fileList, assetList, device, setDevice } = useEditor();
+  const { key, name, fileList, assetList, device, setDevice } = useEditor();
 
   const enableDownload = () => setDownloadDisabled(false);
   const disableDownload = () => setDownloadDisabled(true);
@@ -52,7 +52,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
   return (
     <>
       <MenuSection>
-        <MenuItem
+        {/* <MenuItem
           className={itemClassName}
           label={
             device ? (
@@ -96,7 +96,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
               } catch (err) {}
             }
           }}
-        />
+        /> */}
 
         <MenuItem
           disabled={downloadDisabled}
@@ -114,11 +114,12 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
               if (downloadScreen) {
                 await showDownloadScreen(currentDevice, downloadScreen);
               }
-              downloadDevice(
-                currentDevice,
-                onDownload ? await onDownload(fileList, assetList) : [].concat((fileList, assetList)),
-                downloadingAlert,
-              );
+              let files = onDownload ? onDownload(name, fileList, assetList) : [].concat((fileList, assetList));
+              files = files.map((file) => ({
+                ...file,
+                id: file.id[0] !== '_' ? `proj${key}/${file.id}` : file.id,
+              }));
+              downloadDevice(currentDevice, files, downloadingAlert);
             } catch (err) {}
           }}
         />
