@@ -18,8 +18,8 @@
   },
   "devDependencies": {
     "bun-types": "latest",
-    "bun-loader-yaml": "link:bun-loader-yaml",
-    "bun-loader-css": "link:bun-loader-css"
+    "bun-loader-yaml": "github:kankungyip/bun-loader-yaml",
+    "bun-loader-css": "github:kankungyip/bun-loader-css"
   },
   "dependencies": {
     "preact": "^10.18.1",
