@@ -206,7 +206,7 @@ pythonGenerator.scrubNakedValue = (line) => {
  */
 pythonGenerator.quote_ = (string) => {
   // Can't use goog.string.quote since % must also be escaped.
-  string = string.replace(/\\/g, '\\\\').replace(/\n/g, '\\\n').replace(/\%/g, '\\%');
+  // string = string.replace(/\\/g, '\\\\').replace(/\n/g, '\\\n').replace(/\%/g, '\\%');
 
   // Follow the CPython behaviour of repr() for a non-byte string.
   let quote = '"';
