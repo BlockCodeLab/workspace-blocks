@@ -54,8 +54,8 @@ pythonGenerator['operator_lt'] = (block) => {
 pythonGenerator['operator_equals'] = (block) => {
   const operand1Code = pythonGenerator.valueToCode(block, 'OPERAND1', pythonGenerator.ORDER_NONE) || 0;
   const operand2Code = pythonGenerator.valueToCode(block, 'OPERAND2', pythonGenerator.ORDER_NONE) || 0;
-  const code = `(num(${operand1Code}) == num(${operand2Code}) or str(${operand1Code}) == str(${operand2Code}))`;
-  return [code, pythonGenerator.ORDER_RELATIONAL];
+  const code = `equals(${operand1Code}, ${operand2Code})`;
+  return [code, pythonGenerator.ORDER_FUNCTION_CALL];
 };
 
 pythonGenerator['operator_and'] = (block) => {
