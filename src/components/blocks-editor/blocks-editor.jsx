@@ -15,7 +15,7 @@ const loadedExtensions = new Map();
 
 const blockFilter = (block) => typeof block !== 'string' && !block.button;
 
-const importExtensions = async (deviceId, extensions, addLocaleData, modifyAsset, onLoadExtension) => {
+const importExtensions = async (deviceId, extensions, addLocaleData, addAsset, onLoadExtension) => {
   if (extensions) {
     for (const extensionId of extensions) {
       if (!loadedExtensions.has(extensionId)) {
@@ -25,15 +25,15 @@ const importExtensions = async (deviceId, extensions, addLocaleData, modifyAsset
         }
         extensionObject.id = extensionId;
         if (extensionObject.files) {
-          extensionObject.files.forEach(async (file) => {
+          for (const file of extensionObject.files) {
             const id = `extensions/${extensionId}/${file.name}`;
             const content = await fetch(file.uri).then((res) => res.text());
-            modifyAsset({
+            addAsset({
               ...file,
               id,
               content,
             });
-          });
+          }
         }
         addLocaleData(extensionObject.translations);
         if (onLoadExtension) {
@@ -62,7 +62,7 @@ export default function BlocksEditor({
 }) {
   const { addLocaleData, getText, maybeLocaleText } = useLocale();
   const { splash, createPrompt, createAlert, removeAlert, setSplash } = useLayout();
-  const { editor, fileList, selectedFileId, openFile, modifyFile, modifyAsset, setModified } = useEditor();
+  const { editor, fileList, selectedFileId, openFile, modifyFile, addAsset, setModified } = useEditor();
 
   const [workspace, setWorkspace] = useState();
   const [dataPrompt, setDataPrompt] = useState(false);
@@ -74,13 +74,9 @@ export default function BlocksEditor({
       loadedExtensions.clear();
       // import extensions
       setExtensionsImported(
-        setTimeout(() => {
-          setExtensionsImported(
-            importExtensions(deviceId, editor.extensions, addLocaleData, modifyAsset, onLoadExtension).then(() =>
-              setExtensionsImported(true),
-            ),
-          );
-        }, 100),
+        importExtensions(deviceId, editor.extensions, addLocaleData, addAsset, onLoadExtension).then(() =>
+          setTimeout(() => setExtensionsImported(true), 100),
+        ),
       );
     }
     // load files' blocks one by one
@@ -103,6 +99,7 @@ export default function BlocksEditor({
         setTimeout(() => {
           setSplash(false);
           setModified(false);
+          setExtensionsImported(false);
         }, 100);
       }
     }

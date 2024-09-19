@@ -45,7 +45,7 @@ const monitorPane = {
 export default function BlocksWorkspace({ addLocaleData, createLayout, openProject, project }) {
   addLocaleData(locales);
 
-  const createDefaultProject = (project) => {
+  const createProject = (project) => {
     project = project ?? defaultProject;
     openProject(
       Object.assign(
@@ -56,10 +56,10 @@ export default function BlocksWorkspace({ addLocaleData, createLayout, openProje
       ),
     );
   };
-  createDefaultProject(project);
+  createProject(project);
 
   createLayout({
-    mainMenu: makeMainMenu({ onNew: createDefaultProject }),
+    mainMenu: makeMainMenu({ createProject, openProject }),
 
     tabs: [
       {

@@ -1,7 +1,13 @@
 import { useState } from 'preact/hooks';
 import { useLocale, useLayout, useEditor } from '@blockcode/core';
 import { Text, Spinner, MenuSection, MenuItem } from '@blockcode/ui';
-import { connectDevice, disconnectDevice, downloadDevice, showDownloadScreen } from '@blockcode/device-pyboard';
+import {
+  connectDevice,
+  disconnectDevice,
+  downloadDevice,
+  configDevice,
+  showDownloadScreen,
+} from '@blockcode/device-pyboard';
 import defaultDeviceFilters from '../../lib/device-filters.yaml';
 
 export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, downloadScreen, onDownload, children }) {
@@ -119,7 +125,11 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
                 ...file,
                 id: file.id[0] !== '_' ? `proj${key}/${file.id}` : file.id,
               }));
-              downloadDevice(currentDevice, files, downloadingAlert);
+              await downloadDevice(currentDevice, files, downloadingAlert);
+              await configDevice(currentDevice, {
+                'latest-project': key,
+              });
+              currentDevice.hardwareReset();
             } catch (err) {}
           }}
         />

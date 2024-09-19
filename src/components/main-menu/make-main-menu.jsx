@@ -11,8 +11,9 @@ import deviceIcon from './icons/icon-device.svg';
 export default function makeMainMenu({
   deviceName,
   deviceFilters,
-  createDefaultProject,
-  saveCurrentProject,
+  createProject,
+  openProject,
+  saveProject,
   downloadProjectToDevice,
   showDownloadScreen,
 }) {
@@ -28,8 +29,9 @@ export default function makeMainMenu({
       Menu: ({ itemClassName, children }) => (
         <FileMenu
           itemClassName={itemClassName}
-          onNew={createDefaultProject}
-          onSave={saveCurrentProject}
+          onNew={createProject}
+          onOpen={openProject}
+          onSave={saveProject}
         >
           {children}
         </FileMenu>

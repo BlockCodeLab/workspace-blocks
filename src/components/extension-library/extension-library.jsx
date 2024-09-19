@@ -46,7 +46,7 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
                 }
                 extensionObject.id = extensionInfo.id;
                 if (extensionObject.files) {
-                  extensionObject.files.forEach(async (file) => {
+                  for (const file of extensionObject.files) {
                     const id = `extensions/${extensionInfo.id.replace(/[^a-z\d]/gi, '_')}/${file.name}`;
                     const content = await fetch(file.uri).then((res) => res.text());
                     addAsset({
@@ -54,7 +54,7 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
                       id,
                       content,
                     });
-                  });
+                  }
                 }
                 onSelect(extensionObject);
                 removeAlert(extensionInfo.id);

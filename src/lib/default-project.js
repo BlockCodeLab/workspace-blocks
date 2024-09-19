@@ -1,6 +1,8 @@
+const codeId = `code_${Date.now().toString(36)}`;
+
 const DEFAULT_MAIN_CONTENT = `
 from popsicle.blocks import *
-import code1
+import ${codeId}
 run()
 `;
 
@@ -14,7 +16,7 @@ export default {
   ],
   fileList: [
     {
-      id: 'code1',
+      id: codeId,
       type: 'text/x-python',
     },
   ],
