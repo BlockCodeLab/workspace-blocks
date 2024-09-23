@@ -40,7 +40,10 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
         project.assetList = project.assetList.filter((asset) => !asset.id.startsWith('extensions/'));
       }
       project.fileList = project.fileList.map(({ content, script, ...data }) => data);
-      // console.log(project);
+
+      if (DEVELOPMENT) {
+        console.log(project);
+      }
       return project;
     };
   };

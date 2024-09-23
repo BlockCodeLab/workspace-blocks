@@ -1,32 +1,29 @@
-import { useState } from 'preact/hooks';
 import { useLocale, useLayout, useEditor } from '@blockcode/core';
 import { Text, Spinner, MenuSection, MenuItem } from '@blockcode/ui';
 import {
   connectDevice,
   disconnectDevice,
-  downloadDevice,
+  checkFlash,
+  writeFiles,
   configDevice,
   showDownloadScreen,
 } from '@blockcode/device-pyboard';
 import defaultDeviceFilters from '../../lib/device-filters.yaml';
 
+let downloadAlertId = null;
+
 export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, downloadScreen, onDownload, children }) {
-  const [downloadDisabled, setDownloadDisabled] = useState(false);
   const { maybeLocaleText } = useLocale();
-  const { createAlert, removeAlert } = useLayout();
+  const { createAlert, removeAlert, createPrompt } = useLayout();
   const { key, name, fileList, assetList, device, setDevice } = useEditor();
 
-  const enableDownload = () => setDownloadDisabled(false);
-  const disableDownload = () => setDownloadDisabled(true);
-
   const downloadingAlert = (progress) => {
-    if (!downloadingAlert.id) {
-      downloadingAlert.id = `download.${Date.now()}`;
-      disableDownload();
+    if (!downloadAlertId) {
+      downloadAlertId = `download.${Date.now()}`;
     }
     if (progress < 100) {
       createAlert({
-        id: downloadingAlert.id,
+        id: downloadAlertId,
         icon: <Spinner level="success" />,
         message: (
           <Text
@@ -38,7 +35,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
       });
     } else {
       createAlert({
-        id: downloadingAlert.id,
+        id: downloadAlertId,
         icon: null,
         message: (
           <Text
@@ -47,13 +44,33 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
           />
         ),
       });
-      setTimeout(() => {
-        removeAlert(downloadingAlert.id);
-        enableDownload();
-        delete downloadingAlert.id;
-      }, 1000);
+      setTimeout(removeDownloading, 1000);
     }
   };
+
+  const removeDownloading = () => {
+    removeAlert(downloadAlertId);
+    downloadAlertId = null;
+  };
+
+  const errorAlert = () => {
+    createAlert(
+      {
+        message: (
+          <Text
+            id="blocks.alert.connectionError"
+            defaultMessage="Connection error."
+          />
+        ),
+      },
+      1000,
+    );
+  };
+
+  if (downloadAlertId && !device) {
+    errorAlert();
+    removeDownloading();
+  }
 
   return (
     <>
@@ -92,9 +109,9 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
           onClick={async () => {
             if (device) {
               await disconnectDevice(device, setDevice);
-              if (downloadingAlert.id) {
-                removeAlert(downloadingAlert.id);
-                delete downloadingAlert.id;
+              if (downloadAlertId) {
+                removeAlert(downloadAlertId);
+                delete downloadAlertId;
               }
             } else {
               try {
@@ -105,7 +122,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
         /> */}
 
         <MenuItem
-          disabled={downloadDisabled}
+          disabled={downloadAlertId}
           className={itemClassName}
           label={
             <Text
@@ -114,7 +131,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
             />
           }
           onClick={async () => {
-            if (downloadingAlert.id) return;
+            if (downloadAlertId) return;
             try {
               const currentDevice = device || (await connectDevice(deviceFilters || defaultDeviceFilters, setDevice));
               if (downloadScreen) {
@@ -125,12 +142,35 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
                 ...file,
                 id: file.id[0] !== '_' ? `proj${key}/${file.id}` : file.id,
               }));
-              await downloadDevice(currentDevice, files, downloadingAlert);
-              await configDevice(currentDevice, {
-                'latest-project': key,
-              });
-              currentDevice.hardwareReset();
-            } catch (err) {}
+              downloadingAlert(0);
+              if (await checkFlash(currentDevice, files)) {
+                await writeFiles(currentDevice, files, downloadingAlert);
+                await configDevice(currentDevice, {
+                  'latest-project': key,
+                });
+              } else {
+                createPrompt({
+                  title: deviceName || (
+                    <Text
+                      id="blocks.menu.device.name"
+                      defaultMessage="device"
+                    />
+                  ),
+                  label: (
+                    <Text
+                      id="blocks.alert.flashOutSpace"
+                      defaultMessage="The flash is running out of space."
+                    />
+                  ),
+                });
+                removeDownloading();
+              }
+              currentDevice.hardReset();
+            } catch (err) {
+              console.log(err);
+              errorAlert();
+              removeDownloading();
+            }
           }}
         />
       </MenuSection>
