@@ -16,7 +16,10 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
     let thumb, extensions;
     const workspace = ScratchBlocks.getMainWorkspace();
     if (workspace) {
-      thumb = await svgAsDataUri(workspace.getCanvas(), {});
+      const canvas = workspace.getCanvas();
+      if (canvas) {
+        thumb = await svgAsDataUri(canvas, {});
+      }
       // save extensions
       extensions = Array.from(
         new Set(
