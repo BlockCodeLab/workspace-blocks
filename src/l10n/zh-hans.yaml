@@ -28,12 +28,25 @@ blocks.downloadToDevice: 下载
 blocks.extensions.addExtension: 添加扩展
 blocks.extensions.empty: 没有扩展！
 
+blocks.prompt.ok: 确定
+blocks.prompt.cancel: 取消
 blocks.dataPrompt.forAllTargets: 适用于全局
 blocks.dataPrompt.forThisTarget: 仅适用于当前
 blocks.dataPrompt.availableToAllTargets: 全局都可使用该变量。
 blocks.dataPrompt.listAvailableToAllTargets: 全局都可使用该列表。
-blocks.dataPrompt.cancel: 取消
-blocks.dataPrompt.ok: 确定
+blocks.myBlockPrompt.title: 制作新的积木
+blocks.myBlockPrompt.addAnInputNumberText: 添加输入项
+blocks.myBlockPrompt.numberTextType: 数字或文本
+blocks.myBlockPrompt.addAnInputBoolean: 添加输入项
+blocks.myBlockPrompt.booleanType: 布尔值
+blocks.myBlockPrompt.addALabel: 添加文本标签
+blocks.myBlockPrompt.command: 无返回值
+blocks.myBlockPrompt.reporterNumberText: 返回数字或文本
+blocks.myBlockPrompt.reporterBoolean: 返回布尔值
 
 blocks.event.programStart: 当程序开始运行
 blocks.control.stopOther: 其他脚本
+
+blocks.myblock.addLabel: 文本
+blocks.myblock.addBoolean: 布尔值
+blocks.myblock.addNumbetText: 数字或文本

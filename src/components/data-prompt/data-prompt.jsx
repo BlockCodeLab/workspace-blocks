@@ -113,7 +113,7 @@ export default function DataPrompt({
             onClick={onClose}
           >
             <Text
-              id="blocks.dataPrompt.cancel"
+              id="blocks.prompt.cancel"
               defaultMessage="Cancel"
             />
           </Button>
@@ -122,7 +122,7 @@ export default function DataPrompt({
             onClick={handleSubmit}
           >
             <Text
-              id="blocks.dataPrompt.ok"
+              id="blocks.prompt.ok"
               defaultMessage="OK"
             />
           </Button>

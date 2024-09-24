@@ -6,6 +6,7 @@ import { pythonGenerator } from '../../generators/python';
 import loadExtension from '../../lib/load-extension';
 
 import DataPrompt from '../data-prompt/data-prompt';
+import MyBlockPrompt from '../myblock-prompt/myblock-prompt';
 import ExtensionLibrary from '../extension-library/extension-library';
 
 import styles from './blocks-editor.module.css';
@@ -66,6 +67,7 @@ export default function BlocksEditor({
 
   const [workspace, setWorkspace] = useState();
   const [dataPrompt, setDataPrompt] = useState(false);
+  const [myBlockPrompt, setMyBlockPrompt] = useState(false);
   const [extensionLibrary, setExtensionLibrary] = useState(false);
   const [extensionsImported, setExtensionsImported] = useState(false);
 
@@ -108,6 +110,9 @@ export default function BlocksEditor({
   messages = {
     EVENT_WHENPROGRAMSTART: getText('blocks.event.programStart', 'when program start'),
     CONTROL_STOP_OTHER: getText('blocks.control.stopOther', 'other scripts'),
+    PROCEDURES_ADD_LABEL: getText('blocks.myblock.addLabel', ' label text'),
+    PROCEDURES_ADD_BOOLEAN: getText('blocks.myblock.addBoolean', 'boolean'),
+    PROCEDURES_ADD_STRING_NUMBER: getText('blocks.myblock.addNumbetText', 'number or text'),
     ...(messages || []),
   };
 
@@ -163,6 +168,13 @@ export default function BlocksEditor({
         },
       });
     };
+
+    ScratchBlocks.Procedures.externalProcedureDefCallback = (mutator, defCallback) => {
+      setMyBlockPrompt({
+        mutator,
+        defCallback,
+      });
+    };
   }, [workspace]);
 
   // global variables
@@ -212,11 +224,24 @@ export default function BlocksEditor({
     }
   };
 
-  const handlePromptSubmit = (input, options) => {
+  const handleDataPromptSubmit = (input, options) => {
     dataPrompt.callback(input, [], options);
     setDataPrompt(false);
   };
-  const handlePromptClose = () => setDataPrompt(false);
+
+  const handleMyBlockPromptSubmit = (myBlockXML) => {
+    if (myBlockXML && workspace && myBlockPrompt) {
+      myBlockPrompt.defCallback(myBlockXML);
+      workspace.refreshToolboxSelection_();
+      workspace.toolbox_.scrollToCategoryById('myBlocks');
+    }
+    setMyBlockPrompt(false);
+  };
+
+  const handlePromptClose = () => {
+    setDataPrompt(false);
+    setMyBlockPrompt(false);
+  };
 
   const handleExtensionLibraryOpen = () => setExtensionLibrary(true);
   const handleExtensionLibraryClose = () => setExtensionLibrary(false);
@@ -271,7 +296,14 @@ export default function BlocksEditor({
             showVariableOptions={dataPrompt.showVariableOptions}
             showCloudOption={dataPrompt.showCloudOption}
             onClose={handlePromptClose}
-            onSubmit={handlePromptSubmit}
+            onSubmit={handleDataPromptSubmit}
+          />
+        )}
+        {myBlockPrompt && (
+          <MyBlockPrompt
+            mutator={myBlockPrompt.mutator}
+            onClose={handlePromptClose}
+            onSubmit={handleMyBlockPromptSubmit}
           />
         )}
         {extensionLibrary && (

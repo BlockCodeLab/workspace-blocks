@@ -316,12 +316,17 @@ pythonGenerator.getAdjustedInt = (block, atId, opt_delta, opt_negate) => {
   return at;
 };
 
-pythonGenerator.hatToCode = (name = '', ...args) => {
+pythonGenerator.eventToCode_ = (name, args) => {
+  return `async def ${name}(${args.join(', ')}):\n  this_func = ${name}\n${pythonGenerator.PASS}\n`;
+};
+
+pythonGenerator.hatToCode = (name, ...args) => {
+  name = `hat_${name}`;
   if (!pythonGenerator.functionNames_[name]) {
     pythonGenerator.functionNames_[name] = 0;
   }
   pythonGenerator.functionNames_[name] += 1;
   const functionName = `${name}_${pythonGenerator.functionNames_[name]}`;
   pythonGenerator.HAT_FUNCTION_PLACEHOLDER = functionName;
-  return `async def ${functionName}(${args.join(', ')}):\n  this_func = ${functionName}\n${pythonGenerator.PASS}\n`;
+  return pythonGenerator.eventToCode_(functionName, args);
 };
