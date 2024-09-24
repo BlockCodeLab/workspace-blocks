@@ -317,7 +317,7 @@ pythonGenerator.getAdjustedInt = (block, atId, opt_delta, opt_negate) => {
 };
 
 pythonGenerator.eventToCode_ = (name, args) => {
-  return `async def ${name}(${args.join(', ')}):\n  this_func = ${name}\n${pythonGenerator.PASS}\n`;
+  return `async def ${name}(${args.join(',')}):\n  this_func = ${name}\n${pythonGenerator.PASS}\n`;
 };
 
 pythonGenerator.hatToCode = (name, ...args) => {

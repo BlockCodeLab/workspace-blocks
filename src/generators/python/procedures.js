@@ -14,7 +14,8 @@ pythonGenerator['procedures_definition'] = (block) => {
 pythonGenerator['procedures_call'] = (block) => {
   const functionName = pythonGenerator.variableDB_.getName(block.getProcCode(), ScratchBlocks.Procedures.NAME_TYPE);
   const args = block.argumentIds_.map((arg) => pythonGenerator.valueToCode(block, arg, pythonGenerator.ORDER_NONE));
-  return `await ${functionName}(${args.join(',')}, target)\n`;
+  args.push('target');
+  return `await ${functionName}(${args.join(',')})\n`;
 };
 
 // pythonGenerator['procedures_prototype'] = (block) => {
