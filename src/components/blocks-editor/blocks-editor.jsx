@@ -157,7 +157,7 @@ export default function BlocksEditor({
           placeholder: item.text,
           defaultValue: localStorage.getItem(`${extensionObject.id}.connection.${item.id}`),
         })),
-        content: connectionConfig.description,
+        body: connectionConfig.description,
         onSubmit: (value) => {
           Object.entries(value).forEach(([key, val]) => {
             localStorage.setItem(`${extensionObject.id}.connection.${key}`, `${val}`);
