@@ -1,7 +1,7 @@
 import { pythonGenerator } from './generator';
 
-pythonGenerator['text'] = (block) => {
+pythonGenerator['text'] = function (block) {
   const textValue = block.getFieldValue('TEXT');
-  const code = textValue.length === 0 || isNaN(textValue) ? pythonGenerator.quote_(textValue) : +textValue;
-  return [code, pythonGenerator.ORDER_ATOMIC];
+  const code = textValue.length === 0 || isNaN(textValue) ? this.quote_(textValue) : +textValue;
+  return [code, this.ORDER_ATOMIC];
 };

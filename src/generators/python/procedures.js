@@ -1,45 +1,43 @@
 import { ScratchBlocks } from '@blockcode/blocks-editor';
 import { pythonGenerator } from './generator';
 
-pythonGenerator['procedures_definition'] = (block) => {
+pythonGenerator['procedures_definition'] = function (block) {
   const myBlock = block.childBlocks_[0];
-  const functionName = pythonGenerator.variableDB_.getName(myBlock.getProcCode(), ScratchBlocks.Procedures.NAME_TYPE);
+  const functionName = this.variableDB_.getName(myBlock.getProcCode(), ScratchBlocks.Procedures.NAME_TYPE);
   const args = myBlock.childBlocks_.map((argBlock) =>
-    pythonGenerator.variableDB_.getName(argBlock.getFieldValue('VALUE'), ScratchBlocks.Variables.NAME_TYPE),
+    this.variableDB_.getName(argBlock.getFieldValue('VALUE'), ScratchBlocks.Variables.NAME_TYPE),
   );
-  args.push('target');
-  return pythonGenerator.eventToCode_(functionName, args);
+  return this.functionToCode(functionName, args);
 };
 
-pythonGenerator['procedures_call'] = (block) => {
-  const functionName = pythonGenerator.variableDB_.getName(block.getProcCode(), ScratchBlocks.Procedures.NAME_TYPE);
-  const args = block.argumentIds_.map((arg) => pythonGenerator.valueToCode(block, arg, pythonGenerator.ORDER_NONE));
-  args.push('target');
+pythonGenerator['procedures_call'] = function (block) {
+  const functionName = this.variableDB_.getName(block.getProcCode(), ScratchBlocks.Procedures.NAME_TYPE);
+  const args = block.argumentIds_.map((arg) => this.valueToCode(block, arg, this.ORDER_NONE));
   return `await ${functionName}(${args.join(',')})\n`;
 };
 
-// pythonGenerator['procedures_prototype'] = (block) => {
+// pythonGenerator['procedures_prototype'] = function (block) {
 //   return '"procedures_prototype"';
 // };
 
-// pythonGenerator['procedures_declaration'] = (block) => {
+// pythonGenerator['procedures_declaration'] = function (block) {
 //   return '"procedures_declaration"';
 // };
 
-pythonGenerator['argument_reporter_boolean'] = (block) => {
-  const code = pythonGenerator.variableDB_.getName(block.getFieldValue('VALUE'), ScratchBlocks.Variables.NAME_TYPE);
-  return [code, pythonGenerator.ORDER_ATOMIC];
+pythonGenerator['argument_reporter_boolean'] = function (block) {
+  const code = this.variableDB_.getName(block.getFieldValue('VALUE'), ScratchBlocks.Variables.NAME_TYPE);
+  return [code, this.ORDER_ATOMIC];
 };
 
-pythonGenerator['argument_reporter_string_number'] = (block) => {
-  const code = pythonGenerator.variableDB_.getName(block.getFieldValue('VALUE'), ScratchBlocks.Variables.NAME_TYPE);
-  return [code, pythonGenerator.ORDER_ATOMIC];
+pythonGenerator['argument_reporter_string_number'] = function (block) {
+  const code = this.variableDB_.getName(block.getFieldValue('VALUE'), ScratchBlocks.Variables.NAME_TYPE);
+  return [code, this.ORDER_ATOMIC];
 };
 
-// pythonGenerator['argument_editor_boolean'] = (block) => {
+// pythonGenerator['argument_editor_boolean'] = function (block) {
 //   return ['"argument_editor_boolean"'];
 // };
 
-// pythonGenerator['argument_editor_string_number'] = (block) => {
+// pythonGenerator['argument_editor_string_number'] = function (block) {
 //   return ['"argument_editor_string_number"'];
 // };

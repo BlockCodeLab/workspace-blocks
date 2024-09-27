@@ -13,8 +13,8 @@ const hexToRgb = (hex) => {
     : null;
 };
 
-pythonGenerator['colour_picker'] = (block) => {
+pythonGenerator['colour_picker'] = function (block) {
   const { r, g, b } = hexToRgb(block.getFieldValue('COLOUR'));
   const code = `(${r}, ${g}, ${b})`;
-  return [code, pythonGenerator.ORDER_ATOMIC];
+  return [code, this.ORDER_ATOMIC];
 };

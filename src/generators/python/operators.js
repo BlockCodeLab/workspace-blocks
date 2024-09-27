@@ -1,127 +1,127 @@
 import { pythonGenerator } from './generator';
 
-pythonGenerator['operator_add'] = (block) => {
-  const num1Code = pythonGenerator.valueToCode(block, 'NUM1', pythonGenerator.ORDER_NONE) || 0;
-  const num2Code = pythonGenerator.valueToCode(block, 'NUM2', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_add'] = function (block) {
+  const num1Code = this.valueToCode(block, 'NUM1', this.ORDER_NONE) || 0;
+  const num2Code = this.valueToCode(block, 'NUM2', this.ORDER_NONE) || 0;
   const code = `(num(${num1Code}) + num(${num2Code}))`;
-  return [code, pythonGenerator.ORDER_SUBTRACTION];
+  return [code, this.ORDER_SUBTRACTION];
 };
 
-pythonGenerator['operator_subtract'] = (block) => {
-  const num1Code = pythonGenerator.valueToCode(block, 'NUM1', pythonGenerator.ORDER_NONE) || 0;
-  const num2Code = pythonGenerator.valueToCode(block, 'NUM2', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_subtract'] = function (block) {
+  const num1Code = this.valueToCode(block, 'NUM1', this.ORDER_NONE) || 0;
+  const num2Code = this.valueToCode(block, 'NUM2', this.ORDER_NONE) || 0;
   const code = `(num(${num1Code}) - num(${num2Code}))`;
-  return [code, pythonGenerator.ORDER_SUBTRACTION];
+  return [code, this.ORDER_SUBTRACTION];
 };
 
-pythonGenerator['operator_multiply'] = (block) => {
-  const num1Code = pythonGenerator.valueToCode(block, 'NUM1', pythonGenerator.ORDER_NONE) || 0;
-  const num2Code = pythonGenerator.valueToCode(block, 'NUM2', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_multiply'] = function (block) {
+  const num1Code = this.valueToCode(block, 'NUM1', this.ORDER_NONE) || 0;
+  const num2Code = this.valueToCode(block, 'NUM2', this.ORDER_NONE) || 0;
   const code = `(num(${num1Code}) * num(${num2Code}))`;
-  return [code, pythonGenerator.ORDER_SUBTRACTION];
+  return [code, this.ORDER_SUBTRACTION];
 };
 
-pythonGenerator['operator_divide'] = (block) => {
-  const num1Code = pythonGenerator.valueToCode(block, 'NUM1', pythonGenerator.ORDER_NONE) || 0;
-  const num2Code = pythonGenerator.valueToCode(block, 'NUM2', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_divide'] = function (block) {
+  const num1Code = this.valueToCode(block, 'NUM1', this.ORDER_NONE) || 0;
+  const num2Code = this.valueToCode(block, 'NUM2', this.ORDER_NONE) || 0;
   const code = `(num(${num1Code}) / num(${num2Code}))`;
-  return [code, pythonGenerator.ORDER_SUBTRACTION];
+  return [code, this.ORDER_SUBTRACTION];
 };
 
-pythonGenerator['operator_random'] = (block) => {
-  const minCode = pythonGenerator.valueToCode(block, 'FROM', pythonGenerator.ORDER_NONE) || 0;
-  const maxCode = pythonGenerator.valueToCode(block, 'TO', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_random'] = function (block) {
+  const minCode = this.valueToCode(block, 'FROM', this.ORDER_NONE) || 0;
+  const maxCode = this.valueToCode(block, 'TO', this.ORDER_NONE) || 0;
   const code = `runtime.random(${minCode}, ${maxCode})`;
-  return [code, pythonGenerator.ORDER_FUNCTION_CALL];
+  return [code, this.ORDER_FUNCTION_CALL];
 };
 
-pythonGenerator['operator_gt'] = (block) => {
+pythonGenerator['operator_gt'] = function (block) {
   // >
-  const operand1Code = pythonGenerator.valueToCode(block, 'OPERAND1', pythonGenerator.ORDER_NONE) || 0;
-  const operand2Code = pythonGenerator.valueToCode(block, 'OPERAND2', pythonGenerator.ORDER_NONE) || 0;
+  const operand1Code = this.valueToCode(block, 'OPERAND1', this.ORDER_NONE) || 0;
+  const operand2Code = this.valueToCode(block, 'OPERAND2', this.ORDER_NONE) || 0;
   const code = `(num(${operand1Code}) > num(${operand2Code}))`;
-  return [code, pythonGenerator.ORDER_RELATIONAL];
+  return [code, this.ORDER_RELATIONAL];
 };
 
-pythonGenerator['operator_lt'] = (block) => {
+pythonGenerator['operator_lt'] = function (block) {
   // <
-  const operand1Code = pythonGenerator.valueToCode(block, 'OPERAND1', pythonGenerator.ORDER_NONE) || 0;
-  const operand2Code = pythonGenerator.valueToCode(block, 'OPERAND2', pythonGenerator.ORDER_NONE) || 0;
+  const operand1Code = this.valueToCode(block, 'OPERAND1', this.ORDER_NONE) || 0;
+  const operand2Code = this.valueToCode(block, 'OPERAND2', this.ORDER_NONE) || 0;
   const code = `(num(${operand1Code}) < num(${operand2Code}))`;
-  return [code, pythonGenerator.ORDER_RELATIONAL];
+  return [code, this.ORDER_RELATIONAL];
 };
 
-pythonGenerator['operator_equals'] = (block) => {
-  const operand1Code = pythonGenerator.valueToCode(block, 'OPERAND1', pythonGenerator.ORDER_NONE) || 0;
-  const operand2Code = pythonGenerator.valueToCode(block, 'OPERAND2', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_equals'] = function (block) {
+  const operand1Code = this.valueToCode(block, 'OPERAND1', this.ORDER_NONE) || 0;
+  const operand2Code = this.valueToCode(block, 'OPERAND2', this.ORDER_NONE) || 0;
   const code = `equals(${operand1Code}, ${operand2Code})`;
-  return [code, pythonGenerator.ORDER_FUNCTION_CALL];
+  return [code, this.ORDER_FUNCTION_CALL];
 };
 
-pythonGenerator['operator_and'] = (block) => {
-  const operand1Code = pythonGenerator.valueToCode(block, 'OPERAND1', pythonGenerator.ORDER_NONE) || 'False';
-  const operand2Code = pythonGenerator.valueToCode(block, 'OPERAND2', pythonGenerator.ORDER_NONE) || 'False';
+pythonGenerator['operator_and'] = function (block) {
+  const operand1Code = this.valueToCode(block, 'OPERAND1', this.ORDER_NONE) || 'False';
+  const operand2Code = this.valueToCode(block, 'OPERAND2', this.ORDER_NONE) || 'False';
   const code = `(${operand1Code} and ${operand2Code})`;
-  return [code, pythonGenerator.ORDER_LOGICAL_AND];
+  return [code, this.ORDER_LOGICAL_AND];
 };
 
-pythonGenerator['operator_or'] = (block) => {
-  const operand1Code = pythonGenerator.valueToCode(block, 'OPERAND1', pythonGenerator.ORDER_NONE) || 'False';
-  const operand2Code = pythonGenerator.valueToCode(block, 'OPERAND2', pythonGenerator.ORDER_NONE) || 'False';
+pythonGenerator['operator_or'] = function (block) {
+  const operand1Code = this.valueToCode(block, 'OPERAND1', this.ORDER_NONE) || 'False';
+  const operand2Code = this.valueToCode(block, 'OPERAND2', this.ORDER_NONE) || 'False';
   const code = `(${operand1Code} or ${operand2Code})`;
-  return [code, pythonGenerator.ORDER_LOGICAL_OR];
+  return [code, this.ORDER_LOGICAL_OR];
 };
 
-pythonGenerator['operator_not'] = (block) => {
-  const operandValue = pythonGenerator.valueToCode(block, 'OPERAND', pythonGenerator.ORDER_NONE) || 'False';
+pythonGenerator['operator_not'] = function (block) {
+  const operandValue = this.valueToCode(block, 'OPERAND', this.ORDER_NONE) || 'False';
   const code = `(not ${operandValue})`;
-  return [code, pythonGenerator.ORDER_LOGICAL_NOT];
+  return [code, this.ORDER_LOGICAL_NOT];
 };
 
-pythonGenerator['operator_join'] = (block) => {
-  const string1Code = pythonGenerator.valueToCode(block, 'STRING1', pythonGenerator.ORDER_NONE) || '""';
-  const string2Code = pythonGenerator.valueToCode(block, 'STRING2', pythonGenerator.ORDER_NONE) || '""';
+pythonGenerator['operator_join'] = function (block) {
+  const string1Code = this.valueToCode(block, 'STRING1', this.ORDER_NONE) || '""';
+  const string2Code = this.valueToCode(block, 'STRING2', this.ORDER_NONE) || '""';
   const code = `(str(${string1Code}) + str(${string2Code}))`;
-  return [code, pythonGenerator.ORDER_ATOMIC];
+  return [code, this.ORDER_ATOMIC];
 };
 
-pythonGenerator['operator_letter_of'] = (block) => {
-  const letterValue = pythonGenerator.valueToCode(block, 'LETTER', pythonGenerator.ORDER_NONE) || 0;
-  const stringValue = pythonGenerator.valueToCode(block, 'STRING', pythonGenerator.ORDER_NONE) || '""';
+pythonGenerator['operator_letter_of'] = function (block) {
+  const letterValue = this.valueToCode(block, 'LETTER', this.ORDER_NONE) || 0;
+  const stringValue = this.valueToCode(block, 'STRING', this.ORDER_NONE) || '""';
   const code = `(str(${stringValue})[num(${letterValue}) - 1] || "")`;
-  return [code, pythonGenerator.ORDER_MEMBER];
+  return [code, this.ORDER_MEMBER];
 };
 
-pythonGenerator['operator_length'] = (block) => {
-  const stringValue = pythonGenerator.valueToCode(block, 'STRING', pythonGenerator.ORDER_NONE) || '""';
+pythonGenerator['operator_length'] = function (block) {
+  const stringValue = this.valueToCode(block, 'STRING', this.ORDER_NONE) || '""';
   const code = `len(str(${stringValue}))`;
-  return [code, pythonGenerator.ORDER_FUNCTION_CALL];
+  return [code, this.ORDER_FUNCTION_CALL];
 };
 
-pythonGenerator['operator_contains'] = (block) => {
-  const string1Code = pythonGenerator.valueToCode(block, 'STRING1', pythonGenerator.ORDER_NONE) || '""';
-  const string2Code = pythonGenerator.valueToCode(block, 'STRING2', pythonGenerator.ORDER_NONE) || '""';
+pythonGenerator['operator_contains'] = function (block) {
+  const string1Code = this.valueToCode(block, 'STRING1', this.ORDER_NONE) || '""';
+  const string2Code = this.valueToCode(block, 'STRING2', this.ORDER_NONE) || '""';
   const code = `(str(${string1Code}).count(str(${string2Code})) > 0)`;
-  return [code, pythonGenerator.ORDER_FUNCTION_CALL];
+  return [code, this.ORDER_FUNCTION_CALL];
 };
 
-pythonGenerator['operator_mod'] = (block) => {
-  const num1Code = pythonGenerator.valueToCode(block, 'NUM1', pythonGenerator.ORDER_NONE) || 0;
-  const num2Code = pythonGenerator.valueToCode(block, 'NUM2', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_mod'] = function (block) {
+  const num1Code = this.valueToCode(block, 'NUM1', this.ORDER_NONE) || 0;
+  const num2Code = this.valueToCode(block, 'NUM2', this.ORDER_NONE) || 0;
   const code = `(num(${num1Code}) % num(${num2Code}))`;
-  return [code, pythonGenerator.ORDER_MODULUS];
+  return [code, this.ORDER_MODULUS];
 };
 
-pythonGenerator['operator_round'] = (block) => {
-  pythonGenerator.definitions_['import_math'] = 'import math';
-  const numCode = pythonGenerator.valueToCode(block, 'NUM', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_round'] = function (block) {
+  this.definitions_['import_math'] = 'import math';
+  const numCode = this.valueToCode(block, 'NUM', this.ORDER_NONE) || 0;
   const code = `math.round(num(${numCode}))`;
-  return [code, pythonGenerator.ORDER_FUNCTION_CALL];
+  return [code, this.ORDER_FUNCTION_CALL];
 };
 
-pythonGenerator['operator_mathop'] = (block) => {
-  pythonGenerator.definitions_['import_math'] = 'import math';
-  const numCode = pythonGenerator.valueToCode(block, 'NUM', pythonGenerator.ORDER_NONE) || 0;
+pythonGenerator['operator_mathop'] = function (block) {
+  this.definitions_['import_math'] = 'import math';
+  const numCode = this.valueToCode(block, 'NUM', this.ORDER_NONE) || 0;
   const operatorValue = block.getFieldValue('OPERATOR');
   let code = '';
   if (operatorValue === 'ceiling') {
@@ -141,5 +141,5 @@ pythonGenerator['operator_mathop'] = (block) => {
   } else {
     code += `math.${operatorValue}(num(${numCode}))`;
   }
-  return [code, pythonGenerator.ORDER_FUNCTION_CALL];
+  return [code, this.ORDER_FUNCTION_CALL];
 };

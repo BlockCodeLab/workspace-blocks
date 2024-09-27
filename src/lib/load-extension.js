@@ -1,5 +1,4 @@
 import { ScratchBlocks, blockSeparator } from '@blockcode/blocks-editor';
-import { pythonGenerator } from '../generators/python';
 
 const OUTPUT_SHAPE_HEXAGONAL = 1;
 const OUTPUT_SHAPE_ROUND = 2;
@@ -51,7 +50,7 @@ const FieldTypes = {
   note: 'NOTE',
 };
 
-export default function (extensionObject, isStage, maybeLocaleText, buttonWrapper) {
+export default function (pythonGenerator, extensionObject, isStage, maybeLocaleText, buttonWrapper) {
   const { id: extensionId } = extensionObject;
 
   const extensionName = maybeLocaleText(extensionObject.name);

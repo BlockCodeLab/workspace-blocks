@@ -2,7 +2,6 @@ import { useEffect, useState } from 'preact/hooks';
 import { useLocale, useLayout, useEditor } from '@blockcode/core';
 import { classNames } from '@blockcode/ui';
 import { BlocksEditor as Editor, ScratchBlocks, makeToolboxXML } from '@blockcode/blocks-editor';
-import { pythonGenerator } from '../../generators/python';
 import loadExtension from '../../lib/load-extension';
 
 import DataPrompt from '../data-prompt/data-prompt';
@@ -50,8 +49,9 @@ const importExtensions = async (deviceId, extensions, addLocaleData, addAsset, o
 };
 
 export default function BlocksEditor({
-  toolbox: defaultToolbox,
+  toolbox,
   messages,
+  generator,
   enableMultiTargets,
   enableLocalVariable,
   disableGenerator,
@@ -197,7 +197,7 @@ export default function BlocksEditor({
     });
   }
 
-  let toolboxXML = defaultToolbox || makeToolboxXML();
+  let toolboxXML = toolbox || makeToolboxXML();
   const isStage = selectedFileId === fileList[0].id;
   const buttonWrapper = (onClick) =>
     onClick.bind(null, {
@@ -207,13 +207,13 @@ export default function BlocksEditor({
       removeAlert,
     });
   loadedExtensions.forEach((extensionObject) => {
-    toolboxXML += loadExtension(extensionObject, isStage, maybeLocaleText, buttonWrapper);
+    toolboxXML += loadExtension(generator, extensionObject, isStage, maybeLocaleText, buttonWrapper);
   });
 
   const handleChange = (newXml, workspace) => {
     let newCode;
     if (!disableGenerator) {
-      newCode = pythonGenerator.workspaceToCode(workspace);
+      newCode = generator.workspaceToCode(workspace);
     }
     modifyFile({
       xml: newXml,

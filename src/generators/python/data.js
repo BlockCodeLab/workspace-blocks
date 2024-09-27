@@ -1,160 +1,151 @@
 import { ScratchBlocks } from '@blockcode/blocks-editor';
 import { pythonGenerator } from './generator';
 
-pythonGenerator['data_variable'] = (block) => {
-  const varName = pythonGenerator.variableDB_.getName(
-    block.getFieldValue('VARIABLE'),
-    ScratchBlocks.Variables.NAME_TYPE,
-  );
-  return [varName, pythonGenerator.ORDER_ATOMIC];
+pythonGenerator['data_variable'] = function (block) {
+  const varName = this.variableDB_.getName(block.getFieldValue('VARIABLE'), ScratchBlocks.Variables.NAME_TYPE);
+  return [varName, this.ORDER_ATOMIC];
 };
 
-pythonGenerator['data_setvariableto'] = (block) => {
+pythonGenerator['data_setvariableto'] = function (block) {
   let code = '';
-  if (javascriptGenerator.STATEMENT_PREFIX) {
-    code += javascriptGenerator.injectId(javascriptGenerator.STATEMENT_PREFIX, block);
+  if (pythonGenerator.STATEMENT_PREFIX) {
+    code += pythonGenerator.injectId(pythonGenerator.STATEMENT_PREFIX, block);
   }
 
-  const varName = pythonGenerator.variableDB_.getName(
-    block.getFieldValue('VARIABLE'),
-    ScratchBlocks.Variables.NAME_TYPE,
-  );
-  const valueCode = pythonGenerator.valueToCode(block, 'VALUE', pythonGenerator.ORDER_NONE) || '""';
+  const varName = this.variableDB_.getName(block.getFieldValue('VARIABLE'), ScratchBlocks.Variables.NAME_TYPE);
+  const valueCode = this.valueToCode(block, 'VALUE', this.ORDER_NONE) || '""';
   code += `${varName} = ${valueCode}\n`;
   return code;
 };
 
-pythonGenerator['data_changevariableby'] = (block) => {
+pythonGenerator['data_changevariableby'] = function (block) {
   let code = '';
-  if (javascriptGenerator.STATEMENT_PREFIX) {
-    code += javascriptGenerator.injectId(javascriptGenerator.STATEMENT_PREFIX, block);
+  if (pythonGenerator.STATEMENT_PREFIX) {
+    code += pythonGenerator.injectId(pythonGenerator.STATEMENT_PREFIX, block);
   }
 
-  const varName = pythonGenerator.variableDB_.getName(
-    block.getFieldValue('VARIABLE'),
-    ScratchBlocks.Variables.NAME_TYPE,
-  );
-  const valueCode = pythonGenerator.valueToCode(block, 'VALUE', pythonGenerator.ORDER_NONE) || 0;
+  const varName = this.variableDB_.getName(block.getFieldValue('VARIABLE'), ScratchBlocks.Variables.NAME_TYPE);
+  const valueCode = this.valueToCode(block, 'VALUE', this.ORDER_NONE) || 0;
   code += `${varName} = num(${varName}) + num(${valueCode})\n`;
   return code;
 };
 
-pythonGenerator['data_listcontents'] = (block) => {
+pythonGenerator['data_listcontents'] = function (block) {
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  return [listName, pythonGenerator.ORDER_ATOMIC];
+  return [listName, this.ORDER_ATOMIC];
 };
 
-pythonGenerator['data_addtolist'] = (block) => {
+pythonGenerator['data_addtolist'] = function (block) {
   let code = '';
-  if (pythonGenerator.STATEMENT_PREFIX) {
-    code += pythonGenerator.injectId(pythonGenerator.STATEMENT_PREFIX, block);
+  if (this.STATEMENT_PREFIX) {
+    code += this.injectId(this.STATEMENT_PREFIX, block);
   }
 
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  const itemValue = pythonGenerator.valueToCode(block, 'ITEM', pythonGenerator.ORDER_NONE) || '""';
+  const itemValue = this.valueToCode(block, 'ITEM', this.ORDER_NONE) || '""';
   code += `${listName}.append(${itemValue})\n`;
   return code;
 };
 
-pythonGenerator['data_deleteoflist'] = (block) => {
+pythonGenerator['data_deleteoflist'] = function (block) {
   let code = '';
-  if (pythonGenerator.STATEMENT_PREFIX) {
-    code += pythonGenerator.injectId(pythonGenerator.STATEMENT_PREFIX, block);
+  if (this.STATEMENT_PREFIX) {
+    code += this.injectId(this.STATEMENT_PREFIX, block);
   }
 
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  const indexCode = pythonGenerator.valueToCode(block, 'INDEX', pythonGenerator.ORDER_NONE) || 1;
+  const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
   code += `${listName}.remove(runtime.index(${indexCode}, len(${listName})))\n`;
   return code;
 };
 
-pythonGenerator['data_deletealloflist'] = (block) => {
+pythonGenerator['data_deletealloflist'] = function (block) {
   let code = '';
-  if (pythonGenerator.STATEMENT_PREFIX) {
-    code += pythonGenerator.injectId(pythonGenerator.STATEMENT_PREFIX, block);
+  if (this.STATEMENT_PREFIX) {
+    code += this.injectId(this.STATEMENT_PREFIX, block);
   }
 
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
   code += `${listName} = []\n`;
   return code;
 };
 
-pythonGenerator['data_insertatlist'] = (block) => {
+pythonGenerator['data_insertatlist'] = function (block) {
   let code = '';
-  if (pythonGenerator.STATEMENT_PREFIX) {
-    code += pythonGenerator.injectId(pythonGenerator.STATEMENT_PREFIX, block);
+  if (this.STATEMENT_PREFIX) {
+    code += this.injectId(this.STATEMENT_PREFIX, block);
   }
 
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  const indexCode = pythonGenerator.valueToCode(block, 'INDEX', pythonGenerator.ORDER_NONE) || 1;
-  const itemValue = pythonGenerator.valueToCode(block, 'ITEM', pythonGenerator.ORDER_NONE) || '""';
+  const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
+  const itemValue = this.valueToCode(block, 'ITEM', this.ORDER_NONE) || '""';
   code += `${listName}.insert(runtime.index(${indexCode}, len(${listName})), ${itemValue})\n`;
   return code;
 };
 
-pythonGenerator['data_replaceitemoflist'] = (block) => {
+pythonGenerator['data_replaceitemoflist'] = function (block) {
   let code = '';
-  if (pythonGenerator.STATEMENT_PREFIX) {
-    code += pythonGenerator.injectId(pythonGenerator.STATEMENT_PREFIX, block);
+  if (this.STATEMENT_PREFIX) {
+    code += this.injectId(this.STATEMENT_PREFIX, block);
   }
 
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  const indexCode = pythonGenerator.valueToCode(block, 'INDEX', pythonGenerator.ORDER_NONE) || 1;
-  const itemValue = pythonGenerator.valueToCode(block, 'ITEM', pythonGenerator.ORDER_NONE) || '""';
+  const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
+  const itemValue = this.valueToCode(block, 'ITEM', this.ORDER_NONE) || '""';
   code += `${listName}[runtime.index(${indexCode}, len(${listName}))] = ${itemValue}\n`;
   return code;
 };
 
-pythonGenerator['data_itemoflist'] = (block) => {
+pythonGenerator['data_itemoflist'] = function (block) {
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  const indexCode = pythonGenerator.valueToCode(block, 'INDEX', pythonGenerator.ORDER_NONE) || 1;
+  const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
   const code = `${listName}[runtime.index(${indexCode}, len(${listName}))]`;
-  return [code, pythonGenerator.ORDER_CONDITIONAL];
+  return [code, this.ORDER_CONDITIONAL];
 };
 
-pythonGenerator['data_itemnumoflist'] = (block) => {
+pythonGenerator['data_itemnumoflist'] = function (block) {
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  const itemValue = pythonGenerator.valueToCode(block, 'ITEM', pythonGenerator.ORDER_NONE) || 0;
-  return [`(${listName}.index(${itemValue}) + 1)`, pythonGenerator.ORDER_NONE];
+  const itemValue = this.valueToCode(block, 'ITEM', this.ORDER_NONE) || 0;
+  return [`(${listName}.index(${itemValue}) + 1)`, this.ORDER_NONE];
 };
 
-pythonGenerator['data_lengthoflist'] = (block) => {
+pythonGenerator['data_lengthoflist'] = function (block) {
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  return [`len(${listName})`, pythonGenerator.ORDER_FUNCTION_CALL];
+  return [`len(${listName})`, this.ORDER_FUNCTION_CALL];
 };
 
-pythonGenerator['data_listcontainsitem'] = (block) => {
+pythonGenerator['data_listcontainsitem'] = function (block) {
   const listName =
-    pythonGenerator.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
+    this.variableDB_.getName(block.getFieldValue('LIST'), ScratchBlocks.Variables.NAME_TYPE) +
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
-  const itemValue = pythonGenerator.valueToCode(block, 'ITEM', pythonGenerator.ORDER_NONE) || 0;
-  return [`bool(${listName}.count(${itemValue}))`, pythonGenerator.ORDER_FUNCTION_CALL];
+  const itemValue = this.valueToCode(block, 'ITEM', this.ORDER_NONE) || 0;
+  return [`bool(${listName}.count(${itemValue}))`, this.ORDER_FUNCTION_CALL];
 };

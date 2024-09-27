@@ -1,9 +1,9 @@
 const codeId = `code_${Date.now().toString(36)}`;
 
 const DEFAULT_MAIN_CONTENT = `
-from popsicle.blocks import *
+from blocks import *
 import ${codeId}
-run()
+start()
 `;
 
 export default {

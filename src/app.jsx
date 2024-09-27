@@ -4,7 +4,7 @@ import makeMainMenu from './components/main-menu/make-main-menu';
 import defaultProject from './lib/default-project';
 
 /* generator */
-export { pythonGenerator } from './generators/python';
+import { PythonGenerator, DefaultPythonGenerator } from './generators/python';
 
 /* components */
 import BlocksEditor from './components/blocks-editor/blocks-editor';
@@ -58,13 +58,14 @@ export default function BlocksWorkspace({ addLocaleData, createLayout, openProje
   };
   createProject(project);
 
+  const pythonGenerator = new DefaultPythonGenerator();
   createLayout({
     mainMenu: makeMainMenu({ createProject, openProject }),
 
     tabs: [
       {
         ...codeTab,
-        Content: BlocksEditor,
+        Content: () => <BlocksEditor generator={pythonGenerator} />,
       },
     ],
 
@@ -78,4 +79,4 @@ export default function BlocksWorkspace({ addLocaleData, createLayout, openProje
   });
 }
 
-export { locales, makeMainMenu, codeTab, monitorPane };
+export { locales, makeMainMenu, codeTab, monitorPane, PythonGenerator };
