@@ -50,7 +50,7 @@ const FieldTypes = {
   note: 'NOTE',
 };
 
-export default function (pythonGenerator, extensionObject, isStage, maybeLocaleText, buttonWrapper) {
+export default function (generator, extensionObject, isStage, maybeLocaleText, buttonWrapper) {
   const { id: extensionId } = extensionObject;
 
   const extensionName = maybeLocaleText(extensionObject.name);
@@ -66,6 +66,7 @@ export default function (pythonGenerator, extensionObject, isStage, maybeLocaleT
   }
   categoryXML += `>`;
 
+  extensionObject.menus = extensionObject.menus || {};
   extensionObject.blocks.forEach((block) => {
     if (block === '---') {
       categoryXML += `${blockSeparator}`;
@@ -92,7 +93,7 @@ export default function (pythonGenerator, extensionObject, isStage, maybeLocaleT
     // the block only for stage
     if (!isStage && block.useSprite === false) return;
 
-    const blockId = `${extensionId}_${block.id.toLowerCase()}`;
+    const blockId = `${extensionId}_${block.id}`;
     const blockJson = {
       message0: maybeLocaleText(block.text),
       category: extensionId,
@@ -149,8 +150,46 @@ export default function (pythonGenerator, extensionObject, isStage, maybeLocaleT
           };
 
           if (arg.menu) {
-            argObject.type = 'field_dropdown';
-            argObject.options = arg.menu.map(([text, value]) => [maybeLocaleText(text), value]);
+            let menu = arg.menu;
+            let menuName = arg.name || name;
+            let inputMode = arg.inputMode || false;
+            let inputType = arg.type || 'string';
+            let inputDefault = arg.default || '';
+            if (typeof arg.menu === 'string') {
+              menuName = arg.menu;
+              menu = extensionObject.menus[menuName];
+            }
+            if (!Array.isArray(menu)) {
+              inputMode = menu.inputMode || inputMode;
+              inputType = menu.type || inputType;
+              inputDefault = menu.default || inputDefault;
+              menu = menu.items;
+            }
+            if (inputMode) {
+              if (!extensionObject.menus[menuName]) {
+                extensionObject.menus[menuName] = {
+                  inputMode,
+                  type: inputType,
+                  items: menu,
+                };
+              }
+              blockXML += `<value name="${xmlEscape(name)}">`;
+              blockXML += `<shadow type="${extensionId}_menu_${menuName}">`;
+              if (inputDefault) {
+                blockXML += `<field name="${menuName}">${xmlEscape(maybeLocaleText(inputDefault))}</field>`;
+              }
+              blockXML += '</shadow></value>';
+            } else if (menu) {
+              argObject.type = 'field_dropdown';
+              argObject.options = menu.map((item) => {
+                if (Array.isArray(item)) {
+                  const [text, value] = item;
+                  return [maybeLocaleText(text), value];
+                }
+                item = `${item}`;
+                return [item, item];
+              });
+            }
           } else if (arg.type === 'boolean') {
             argObject.check = 'Boolean';
           } else {
@@ -177,15 +216,59 @@ export default function (pythonGenerator, extensionObject, isStage, maybeLocaleT
       },
     };
 
-    // generate python
-    if (block.python) {
-      pythonGenerator[blockId] = block.python.bind(pythonGenerator);
+    // generate code
+    const codeName = generator.name_.toLowerCase();
+    if (block[codeName]) {
+      generator[blockId] = block[codeName].bind(generator);
     } else {
-      pythonGenerator[blockId] = () => '';
+      generator[blockId] = () => '';
     }
 
     blockXML += '</block>';
     categoryXML += blockXML;
+  });
+
+  // menu input blocks
+  Object.entries(extensionObject.menus).forEach(([menuName, menu]) => {
+    if (!menu.inputMode) return;
+
+    const blockId = `${extensionId}_menu_${menuName}`;
+    const outputType = menu.type === 'number' ? 'output_number' : 'output_string';
+    const blockJson = {
+      message0: '%1',
+      args0: [
+        {
+          type: 'field_dropdown',
+          name: menuName,
+          options: menu.items.map((item) => {
+            if (Array.isArray(item)) {
+              const [text, value] = item;
+              return [maybeLocaleText(text), value];
+            }
+            item = `${item}`;
+            return [item, item];
+          }),
+        },
+      ],
+      category: extensionId,
+      colour: extensionObject.themeColor || THEME_COLOR,
+      colourSecondary: extensionObject.inputColor || INPUT_COLOR,
+      colourTertiary: extensionObject.otherColor || OTHER_COLOR,
+      extensions: [outputType],
+    };
+
+    ScratchBlocks.Blocks[blockId] = {
+      init() {
+        this.jsonInit(blockJson);
+      },
+    };
+
+    // generate code
+    generator[blockId] = (block) => {
+      const value = block.getFieldValue(menuName);
+      const code = value.length === 0 || isNaN(value) ? this.quote_(value) : +value;
+      return [code, this.ORDER_ATOMIC];
+    };
   });
 
   categoryXML += '</category>';

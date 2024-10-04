@@ -15,6 +15,8 @@ const loadedExtensions = new Map();
 
 const blockFilter = (block) => typeof block !== 'string' && !block.button;
 
+let timeoutTimer;
+
 const importExtensions = async (deviceId, extensions, addLocaleData, addAsset, onLoadExtension) => {
   if (extensions) {
     for (const extensionId of extensions) {
@@ -70,42 +72,6 @@ export default function BlocksEditor({
   const [myBlockPrompt, setMyBlockPrompt] = useState(false);
   const [extensionLibrary, setExtensionLibrary] = useState(false);
   const [extensionsImported, setExtensionsImported] = useState(false);
-
-  if (splash) {
-    if (splash === true && extensionsImported === false) {
-      loadedExtensions.clear();
-      // import extensions
-      setExtensionsImported(
-        importExtensions(deviceId, editor.extensions, addLocaleData, addAsset, onLoadExtension).then(() =>
-          setTimeout(() => setExtensionsImported(true), 100),
-        ),
-      );
-    }
-    // load files' blocks one by one
-    if (extensionsImported === true) {
-      let projectBlocksReady = true;
-      if (fileList.length > 1) {
-        for (let i = 0; i > -fileList.length; i--) {
-          const file = fileList.at(i);
-          if (!file.content) {
-            projectBlocksReady = false;
-            setTimeout(() => {
-              const idx = (i + fileList.length) % fileList.length;
-              openFile(fileList[idx].id);
-            }, 100);
-            break;
-          }
-        }
-      }
-      if (projectBlocksReady) {
-        setTimeout(() => {
-          setSplash(false);
-          setModified(false);
-          setExtensionsImported(false);
-        }, 100);
-      }
-    }
-  }
 
   messages = {
     EVENT_WHENPROGRAMSTART: getText('blocks.event.programStart', 'when program start'),
@@ -188,8 +154,8 @@ export default function BlocksEditor({
 
         const id = variable.id_.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const re = new RegExp(`<field name="BROADCAST_OPTION" id="${id}"[^>]+>[^<]+</field>`, 'g');
-        for (const target of fileList) {
-          if (re.test(target.xml)) return true;
+        for (const file of fileList) {
+          if (re.test(file.xml)) return true;
         }
         return false;
       }
@@ -210,17 +176,34 @@ export default function BlocksEditor({
     toolboxXML += loadExtension(generator, extensionObject, isStage, maybeLocaleText, buttonWrapper);
   });
 
-  const handleChange = (newXml, workspace) => {
-    let newCode;
+  const generateCode = (workspace) => {
+    let content;
     if (!disableGenerator) {
-      newCode = generator.workspaceToCode(workspace);
+      content = generator.workspaceToCode(workspace);
     }
+    // save extensions
+    const extensions = Array.from(
+      new Set(
+        Object.values(workspace.blockDB_)
+          .filter((block) => loadedExtensions.has(block.category_))
+          .map((block) => block.category_),
+      ),
+    );
+    return {
+      content,
+      extensions,
+    };
+  };
+
+  const handleChange = (xml, workspace) => {
+    const { content, extensions } = generateCode(workspace);
     modifyFile({
-      xml: newXml,
-      content: newCode,
+      xml,
+      content,
+      extensions,
     });
     if (onChange) {
-      onChange(newXml, workspace);
+      onChange(xml, workspace);
     }
   };
 
@@ -246,8 +229,25 @@ export default function BlocksEditor({
   const handleExtensionLibraryOpen = () => setExtensionLibrary(true);
   const handleExtensionLibraryClose = () => setExtensionLibrary(false);
 
-  const handleSelectExtension = (extensionObject) => {
-    if (!loadedExtensions.has(extensionObject.id)) {
+  const handleSelectExtension = async (extensionId) => {
+    if (!loadedExtensions.has(extensionId)) {
+      createAlert('importing', { id: extensionId });
+      let { default: extensionObject } = await import(`@blockcode/extension-${extensionId}/blocks`);
+      if (typeof extensionObject === 'function') {
+        extensionObject = extensionObject(deviceId);
+      }
+      extensionObject.id = extensionId;
+      if (extensionObject.files) {
+        for (const file of extensionObject.files) {
+          const id = `extensions/${extensionId.replace(/[^a-z\d]/gi, '_')}/${file.name}`;
+          const content = await fetch(file.uri).then((res) => res.text());
+          addAsset({
+            ...file,
+            id,
+            content,
+          });
+        }
+      }
       addLocaleData(extensionObject.translations);
       if (onLoadExtension) {
         onLoadExtension({
@@ -256,11 +256,54 @@ export default function BlocksEditor({
         });
       }
       loadedExtensions.set(extensionObject.id, extensionObject);
+      removeAlert(extensionId);
     }
     setTimeout(() => {
-      workspace.toolbox_.setSelectedCategoryById(extensionObject.id);
-    }, 100);
+      workspace.toolbox_.setSelectedCategoryById(extensionId);
+    }, 50);
   };
+
+  // load project
+  if (splash) {
+    if (splash === true && extensionsImported === false) {
+      loadedExtensions.clear();
+      // import extensions
+      setExtensionsImported(
+        importExtensions(deviceId, editor.extensions, addLocaleData, addAsset, onLoadExtension).then(() => {
+          setExtensionsImported(true);
+        }),
+      );
+    }
+    // load files' blocks one by one
+    if (extensionsImported === true) {
+      const defaultSelectedFileId = splash;
+      if (defaultSelectedFileId === selectedFileId) {
+        // loading finish
+        setSplash(false);
+        setExtensionsImported(false);
+        setTimeout(() => setModified(false), 50);
+      } else {
+        // load file
+        const index = fileList.findIndex((file) => file.id === selectedFileId);
+        const file = fileList[index];
+        const nextFileId = fileList.at(index - 1).id;
+        if (file.content && !timeoutTimer) {
+          timeoutTimer = setTimeout(() => {
+            timeoutTimer = null;
+            openFile(nextFileId);
+            if (splash === true) {
+              setSplash(selectedFileId);
+            }
+          }, 50);
+        }
+      }
+    }
+  }
+
+  let extensionsLoaded = true;
+  if (editor.extensions) {
+    extensionsLoaded = editor.extensions.every((extensionId) => loadedExtensions.has(extensionId));
+  }
 
   return (
     <>
@@ -268,9 +311,10 @@ export default function BlocksEditor({
         <Editor
           toolbox={toolboxXML}
           messages={messages}
+          extensionsLoaded={extensionsLoaded}
           globalVariables={globalVariables}
           onWorkspaceCreated={setWorkspace}
-          onChange={selectedFileId !== null ? handleChange : null}
+          onChange={handleChange}
         />
         {disableExtension ? null : (
           <div className={classNames('scratchCategoryMenu', styles.extensionButton)}>

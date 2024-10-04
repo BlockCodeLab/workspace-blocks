@@ -13,13 +13,7 @@ import BlocksEditor from './components/blocks-editor/blocks-editor';
 import blocksIcon from './icon-blocks.svg';
 
 /* languages */
-import en from './l10n/en.yaml';
-import zhHans from './l10n/zh-hans.yaml';
-
-const locales = {
-  en,
-  'zh-Hans': zhHans,
-};
+import locales from './l10n';
 
 const codeTab = {
   icon: blocksIcon,
@@ -42,30 +36,21 @@ const monitorPane = {
   Content: null,
 };
 
-export default function BlocksWorkspace({ addLocaleData, createLayout, openProject, project }) {
+export default function BlocksWorkspace({ addLocaleData, openProject }) {
   addLocaleData(locales);
 
-  const createProject = (project) => {
-    project = project ?? defaultProject;
-    openProject(
-      Object.assign(
-        {
-          selectedFileId: project.fileList[0].id,
-        },
-        project,
-      ),
-    );
+  const createProject = () => {
+    openProject(Object.assign(defaultProject));
   };
-  createProject(project);
+  createProject();
 
-  const pythonGenerator = new DefaultPythonGenerator();
-  createLayout({
+  return {
     mainMenu: makeMainMenu({ createProject, openProject }),
 
     tabs: [
       {
         ...codeTab,
-        Content: () => <BlocksEditor generator={pythonGenerator} />,
+        Content: () => <BlocksEditor generator={new DefaultPythonGenerator()} />,
       },
     ],
 
@@ -76,7 +61,11 @@ export default function BlocksWorkspace({ addLocaleData, createLayout, openProje
     tutorials: true,
 
     canEditProjectName: true,
-  });
+
+    defaultFileIndex: 0,
+
+    defaultTabIndex: 0,
+  };
 }
 
 export { locales, makeMainMenu, codeTab, monitorPane, PythonGenerator };

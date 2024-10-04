@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useLocale, useLayout, useEditor } from '@blockcode/core';
 import { Library } from '@blockcode/ui';
-import extensions from './extensions';
+import allExtensions from './extensions';
 
-const loadingExtensions = Promise.all(extensions);
+const loadingExtensions = Promise.all(allExtensions);
 
 export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter }) {
   const [data, setData] = useState([]);
@@ -30,34 +30,16 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
   };
 
   useEffect(() => {
-    loadingExtensions.then((allExtensions) => {
+    loadingExtensions.then((extensions) => {
       setData(
-        allExtensions.filter(handleFilter).map((extensionInfo) =>
+        extensions.filter(handleFilter).map((extensionInfo) =>
           Object.assign(
             {
               ...extensionInfo,
               featured: true,
               disabled: extensionInfo.disabled || (!DEVELOPMENT && extensionInfo.preview),
-              onSelect: async () => {
-                createAlert('importing', { id: extensionInfo.id });
-                let { default: extensionObject } = await import(`@blockcode/extension-${extensionInfo.id}/blocks`);
-                if (typeof extensionObject === 'function') {
-                  extensionObject = extensionObject(deviceId);
-                }
-                extensionObject.id = extensionInfo.id;
-                if (extensionObject.files) {
-                  for (const file of extensionObject.files) {
-                    const id = `extensions/${extensionInfo.id.replace(/[^a-z\d]/gi, '_')}/${file.name}`;
-                    const content = await fetch(file.uri).then((res) => res.text());
-                    addAsset({
-                      ...file,
-                      id,
-                      content,
-                    });
-                  }
-                }
-                onSelect(extensionObject);
-                removeAlert(extensionInfo.id);
+              onSelect: () => {
+                onSelect(extensionInfo.id);
                 onClose();
               },
             },

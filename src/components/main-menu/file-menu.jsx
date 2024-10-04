@@ -12,6 +12,13 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
   const { createPrompt, setStoreLibrary } = useLayout();
   const { modified, saveNow, saveToComputer, openFromComputer } = useEditor();
 
+  const handleSave = (data) => {
+    if (onSave) {
+      return onSave(data);
+    }
+    return data;
+  };
+
   const saveProject = async () => {
     let thumb, extensions;
     const workspace = ScratchBlocks.getMainWorkspace();
@@ -20,29 +27,21 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
       if (canvas) {
         thumb = await svgAsDataUri(canvas, {});
       }
-      // save extensions
-      extensions = Array.from(
-        new Set(
-          Object.values(workspace.blockDB_)
-            .filter((block) => extensionList.find((extension) => extension === block.category_))
-            .map((block) => block.category_),
-        ),
-      );
     }
     return (data) => {
+      let extensionSet = new Set();
       const project = {
         thumb,
-        ...data,
-        ...(onSave ? onSave() : {}),
-        editor: {
-          ...data.editor,
-          extensions,
-        },
+        ...handleSave(data),
       };
       if (project.assetList) {
         project.assetList = project.assetList.filter((asset) => !asset.id.startsWith('extensions/'));
       }
-      project.fileList = project.fileList.map(({ content, script, ...data }) => data);
+      project.fileList = project.fileList.map(({ content, script, extensions, ...data }) => {
+        extensionSet = extensionSet.union(new Set(extensions));
+        return data;
+      });
+      project.editor.extensions = Array.from(extensionSet);
 
       if (DEVELOPMENT) {
         console.log(project);
