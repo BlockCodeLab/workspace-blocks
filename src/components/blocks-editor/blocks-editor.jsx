@@ -15,8 +15,6 @@ const loadedExtensions = new Map();
 
 const blockFilter = (block) => typeof block !== 'string' && !block.button;
 
-let timeoutTimer;
-
 const importExtensions = async (deviceId, extensions, addLocaleData, addAsset, onLoadExtension) => {
   if (extensions) {
     for (const extensionId of extensions) {
@@ -270,7 +268,7 @@ export default function BlocksEditor({
       // import extensions
       setExtensionsImported(
         importExtensions(deviceId, editor.extensions, addLocaleData, addAsset, onLoadExtension).then(() => {
-          setExtensionsImported(true);
+          setTimeout(() => setExtensionsImported(true), 50);
         }),
       );
     }
@@ -286,15 +284,14 @@ export default function BlocksEditor({
         // load file
         const index = fileList.findIndex((file) => file.id === selectedFileId);
         const file = fileList[index];
-        const nextFileId = fileList.at(index - 1).id;
-        if (file.content && !timeoutTimer) {
-          timeoutTimer = setTimeout(() => {
-            timeoutTimer = null;
-            openFile(nextFileId);
+        if (file.content) {
+          const nextFileId = fileList.at(index - 1).id;
+          setTimeout(() => {
             if (splash === true) {
               setSplash(selectedFileId);
             }
-          }, 50);
+            openFile(nextFileId);
+          });
         }
       }
     }
