@@ -51,7 +51,7 @@ const importExtensions = async (deviceId, extensions, addLocaleData, addAsset, o
 export default function BlocksEditor({
   toolbox,
   messages,
-  generator,
+  generators,
   enableMultiTargets,
   enableLocalVariable,
   disableGenerator,
@@ -171,13 +171,13 @@ export default function BlocksEditor({
       removeAlert,
     });
   loadedExtensions.forEach((extensionObject) => {
-    toolboxXML += loadExtension(generator, extensionObject, isStage, maybeLocaleText, buttonWrapper);
+    toolboxXML += loadExtension(generators, extensionObject, isStage, maybeLocaleText, buttonWrapper);
   });
 
   const generateCode = (workspace) => {
-    let content;
+    let content = '\n';
     if (!disableGenerator) {
-      content = generator.workspaceToCode(workspace);
+      content = generators[0].workspaceToCode(workspace);
     }
     // save extensions
     const extensions = Array.from(
@@ -275,14 +275,14 @@ export default function BlocksEditor({
     // load files' blocks one by one
     if (extensionsImported === true) {
       const defaultSelectedFileId = splash;
-      if (defaultSelectedFileId === selectedFileId) {
+      if (fileList.length === 1 || defaultSelectedFileId === selectedFileId) {
         // loading finish
         setSplash(false);
         setExtensionsImported(false);
         setTimeout(() => setModified(false), 50);
       } else {
         // load file
-        const index = fileList.findIndex((file) => file.id === selectedFileId);
+        const index = fileList.findIndex((file) => file.id === selectedFileId) || 0;
         const file = fileList[index];
         if (file.content) {
           const nextFileId = fileList.at(index - 1).id;

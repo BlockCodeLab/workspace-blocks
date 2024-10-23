@@ -50,7 +50,7 @@ export default function BlocksWorkspace({ addLocaleData, openProject }) {
     tabs: [
       {
         ...codeTab,
-        Content: () => <BlocksEditor generator={new DefaultPythonGenerator()} />,
+        Content: () => <BlocksEditor generators={[new DefaultPythonGenerator()]} />,
       },
     ],
 

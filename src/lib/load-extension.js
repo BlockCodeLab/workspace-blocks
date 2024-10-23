@@ -50,7 +50,7 @@ const FieldTypes = {
   note: 'NOTE',
 };
 
-export default function (generator, extensionObject, isStage, maybeLocaleText, buttonWrapper) {
+export default function (generators, extensionObject, isStage, maybeLocaleText, buttonWrapper) {
   const { id: extensionId } = extensionObject;
 
   const extensionName = maybeLocaleText(extensionObject.name);
@@ -67,166 +67,170 @@ export default function (generator, extensionObject, isStage, maybeLocaleText, b
   categoryXML += `>`;
 
   extensionObject.menus = extensionObject.menus || {};
-  extensionObject.blocks.forEach((block) => {
-    if (block === '---') {
-      categoryXML += `${blockSeparator}`;
-      return;
-    }
+  extensionObject.blocks
+    .filter((block) => !block.hidden)
+    .forEach((block) => {
+      if (block === '---') {
+        categoryXML += `${blockSeparator}`;
+        return;
+      }
 
-    if (block.button) {
-      categoryXML += `<button text="${maybeLocaleText(block.text)}" callbackKey="${block.button}"></button>`;
-      const workspace = ScratchBlocks.getMainWorkspace();
-      if (workspace) {
-        const flyout = workspace.getFlyout();
-        if (flyout) {
-          const toolboxWorkspace = flyout.getWorkspace();
-          if (toolboxWorkspace) {
-            toolboxWorkspace.registerButtonCallback(block.button, buttonWrapper(block.onClick));
+      if (block.button) {
+        categoryXML += `<button text="${maybeLocaleText(block.text)}" callbackKey="${block.button}"></button>`;
+        const workspace = ScratchBlocks.getMainWorkspace();
+        if (workspace) {
+          const flyout = workspace.getFlyout();
+          if (flyout) {
+            const toolboxWorkspace = flyout.getWorkspace();
+            if (toolboxWorkspace) {
+              toolboxWorkspace.registerButtonCallback(block.button, buttonWrapper(block.onClick));
+            }
           }
         }
+        return;
       }
-      return;
-    }
 
-    // the block only for sprite
-    if (isStage && block.useStage === false) return;
-    // the block only for stage
-    if (!isStage && block.useSprite === false) return;
+      // the block only for sprite
+      if (isStage && block.useStage === false) return;
+      // the block only for stage
+      if (!isStage && block.useSprite === false) return;
 
-    const blockId = `${extensionId}_${block.id}`;
-    const blockJson = {
-      message0: maybeLocaleText(block.text),
-      category: extensionId,
-      outputShape: OUTPUT_SHAPE_SQUARE,
-      colour: extensionObject.themeColor || THEME_COLOR,
-      colourSecondary: extensionObject.inputColor || INPUT_COLOR,
-      colourTertiary: extensionObject.otherColor || OTHER_COLOR,
-    };
+      const blockId = `${extensionId}_${block.id}`;
+      const blockJson = {
+        message0: maybeLocaleText(block.text),
+        category: extensionId,
+        outputShape: OUTPUT_SHAPE_SQUARE,
+        colour: extensionObject.themeColor || THEME_COLOR,
+        colourSecondary: extensionObject.inputColor || INPUT_COLOR,
+        colourTertiary: extensionObject.otherColor || OTHER_COLOR,
+      };
 
-    let argsIndexStart = 1;
-    if (extensionObject.iconURI) {
-      blockJson.message0 = `%1 %2 ${blockJson.message0}`;
-      blockJson.args0 = [
-        {
-          type: 'field_image',
-          src: extensionObject.iconURI,
-          width: 40,
-          height: 40,
-        },
-        {
-          type: 'field_vertical_separator',
-        },
-      ];
-      blockJson.extensions = ['scratch_extension'];
-      argsIndexStart += 2;
-    }
+      let argsIndexStart = 1;
+      if (extensionObject.iconURI) {
+        blockJson.message0 = `%1 %2 ${blockJson.message0}`;
+        blockJson.args0 = [
+          {
+            type: 'field_image',
+            src: extensionObject.iconURI,
+            width: 40,
+            height: 40,
+          },
+          {
+            type: 'field_vertical_separator',
+          },
+        ];
+        blockJson.extensions = ['scratch_extension'];
+        argsIndexStart += 2;
+      }
 
-    if (block.hat) {
-      blockJson.nextStatement = null;
-    } else if (block.output) {
-      if (block.output === 'boolean') {
-        blockJson.output = 'Boolean';
-        blockJson.outputShape = OUTPUT_SHAPE_HEXAGONAL;
+      if (block.hat) {
+        blockJson.nextStatement = null;
+      } else if (block.output) {
+        if (block.output === 'boolean') {
+          blockJson.output = 'Boolean';
+          blockJson.outputShape = OUTPUT_SHAPE_HEXAGONAL;
+        } else {
+          blockJson.output = 'String'; // TODO: text or nubmer
+          blockJson.outputShape = OUTPUT_SHAPE_ROUND;
+        }
+        blockJson.checkboxInFlyout = block.monitoring !== false;
       } else {
-        blockJson.output = 'String'; // TODO: text or nubmer
-        blockJson.outputShape = OUTPUT_SHAPE_ROUND;
+        blockJson.previousStatement = null;
+        blockJson.nextStatement = null;
       }
-      blockJson.checkboxInFlyout = block.monitoring !== false;
-    } else {
-      blockJson.previousStatement = null;
-      blockJson.nextStatement = null;
-    }
 
-    let blockXML = `<block type="${xmlEscape(blockId)}">`;
+      let blockXML = `<block type="${xmlEscape(blockId)}">`;
 
-    if (block.inputs) {
-      blockJson.checkboxInFlyout = false;
-      blockJson.args0 = [].concat(
-        blockJson.args0 || [],
-        Object.entries(block.inputs).map(([name, arg]) => {
-          const argObject = {
-            name,
-            type: 'input_value',
-          };
+      if (block.inputs) {
+        blockJson.checkboxInFlyout = false;
+        blockJson.args0 = [].concat(
+          blockJson.args0 || [],
+          Object.entries(block.inputs).map(([name, arg]) => {
+            const argObject = {
+              name,
+              type: 'input_value',
+            };
 
-          if (arg.menu) {
-            let menu = arg.menu;
-            let menuName = arg.name || name;
-            let inputMode = arg.inputMode || false;
-            let inputType = arg.type || 'string';
-            let inputDefault = arg.default || '';
-            if (typeof arg.menu === 'string') {
-              menuName = arg.menu;
-              menu = extensionObject.menus[menuName];
-            }
-            if (!Array.isArray(menu)) {
-              inputMode = menu.inputMode || inputMode;
-              inputType = menu.type || inputType;
-              inputDefault = menu.default || inputDefault;
-              menu = menu.items;
-            }
-            if (inputMode) {
-              if (!extensionObject.menus[menuName]) {
-                extensionObject.menus[menuName] = {
-                  inputMode,
-                  type: inputType,
-                  items: menu,
-                };
+            if (arg.menu) {
+              let menu = arg.menu;
+              let menuName = arg.name || name;
+              let inputMode = arg.inputMode || false;
+              let inputType = arg.type || 'string';
+              let inputDefault = arg.default || '';
+              if (typeof arg.menu === 'string') {
+                menuName = arg.menu;
+                menu = extensionObject.menus[menuName];
               }
-              blockXML += `<value name="${xmlEscape(name)}">`;
-              blockXML += `<shadow type="${extensionId}_menu_${menuName}">`;
-              if (inputDefault) {
-                blockXML += `<field name="${menuName}">${xmlEscape(maybeLocaleText(inputDefault))}</field>`;
+              if (!Array.isArray(menu)) {
+                inputMode = menu.inputMode || inputMode;
+                inputType = menu.type || inputType;
+                inputDefault = menu.default || inputDefault;
+                menu = menu.items;
               }
-              blockXML += '</shadow></value>';
-            } else if (menu) {
-              argObject.type = 'field_dropdown';
-              argObject.options = menu.map((item) => {
-                if (Array.isArray(item)) {
-                  const [text, value] = item;
-                  return [maybeLocaleText(text), value];
+              if (inputMode) {
+                if (!extensionObject.menus[menuName]) {
+                  extensionObject.menus[menuName] = {
+                    inputMode,
+                    type: inputType,
+                    items: menu,
+                  };
                 }
-                item = `${item}`;
-                return [item, item];
-              });
-            }
-          } else if (arg.type === 'boolean') {
-            argObject.check = 'Boolean';
-          } else {
-            blockXML += `<value name="${xmlEscape(name)}">`;
-            if (ShadowTypes[arg.type]) {
-              blockXML += `<shadow type="${ShadowTypes[arg.type]}">`;
-              if (arg.default && FieldTypes[arg.type]) {
-                blockXML += `<field name="${FieldTypes[arg.type]}">${xmlEscape(maybeLocaleText(arg.default))}</field>`;
+                blockXML += `<value name="${xmlEscape(name)}">`;
+                blockXML += `<shadow type="${extensionId}_menu_${menuName}">`;
+                if (inputDefault) {
+                  blockXML += `<field name="${menuName}">${xmlEscape(maybeLocaleText(inputDefault))}</field>`;
+                }
+                blockXML += '</shadow></value>';
+              } else if (menu) {
+                argObject.type = 'field_dropdown';
+                argObject.options = menu.map((item) => {
+                  if (Array.isArray(item)) {
+                    const [text, value] = item;
+                    return [maybeLocaleText(text), value];
+                  }
+                  item = `${item}`;
+                  return [item, item];
+                });
               }
-              blockXML += '</shadow>';
+            } else if (arg.type === 'boolean') {
+              argObject.check = 'Boolean';
+            } else {
+              blockXML += `<value name="${xmlEscape(name)}">`;
+              if (ShadowTypes[arg.type]) {
+                blockXML += `<shadow type="${ShadowTypes[arg.type]}">`;
+                if (arg.default && FieldTypes[arg.type]) {
+                  blockXML += `<field name="${FieldTypes[arg.type]}">${xmlEscape(maybeLocaleText(arg.default))}</field>`;
+                }
+                blockXML += '</shadow>';
+              }
+              blockXML += '</value>';
             }
-            blockXML += '</value>';
-          }
 
-          blockJson.message0 = blockJson.message0.replace(`[${name}]`, `%${argsIndexStart++}`);
-          return argObject;
-        }),
-      );
-    }
+            blockJson.message0 = blockJson.message0.replace(`[${name}]`, `%${argsIndexStart++}`);
+            return argObject;
+          }),
+        );
+      }
 
-    ScratchBlocks.Blocks[blockId] = {
-      init() {
-        this.jsonInit(blockJson);
-      },
-    };
+      ScratchBlocks.Blocks[blockId] = {
+        init() {
+          this.jsonInit(blockJson);
+        },
+      };
 
-    // generate code
-    const codeName = generator.name_.toLowerCase();
-    if (block[codeName]) {
-      generator[blockId] = block[codeName].bind(generator);
-    } else {
-      generator[blockId] = () => '';
-    }
+      // generate code
+      for (const generator of generators) {
+        const codeName = generator.name_.toLowerCase();
+        if (block[codeName]) {
+          generator[blockId] = block[codeName].bind(generator);
+        } else {
+          generator[blockId] = () => '';
+        }
+      }
 
-    blockXML += '</block>';
-    categoryXML += blockXML;
-  });
+      blockXML += '</block>';
+      categoryXML += blockXML;
+    });
 
   // menu input blocks
   Object.entries(extensionObject.menus).forEach(([menuName, menu]) => {
@@ -264,11 +268,12 @@ export default function (generator, extensionObject, isStage, maybeLocaleText, b
     };
 
     // generate code
-    generator[blockId] = (block) => {
-      const value = block.getFieldValue(menuName);
-      const code = value.length === 0 || isNaN(value) ? this.quote_(value) : +value;
-      return [code, this.ORDER_ATOMIC];
-    };
+    for (const generator of generators) {
+      generator[blockId] = (block) => {
+        const value = block.getFieldValue(menuName);
+        return [value, generator.ORDER_ATOMIC];
+      };
+    }
   });
 
   categoryXML += '</category>';
