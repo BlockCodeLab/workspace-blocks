@@ -6,8 +6,6 @@ import { ScratchBlocks } from '@blockcode/blocks-editor';
 
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent);
 
-const extensionList = readExtensions();
-
 export default function FileMenu({ itemClassName, onNew, onOpen, onSave, children }) {
   const { createPrompt, setStoreLibrary } = useLayout();
   const { modified, saveNow, saveToComputer, openFromComputer } = useEditor();
@@ -32,15 +30,19 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
       let extensionSet = new Set();
       const project = {
         thumb,
+        editor: {},
+        ...data,
         ...handleSave(data),
       };
       if (project.assetList) {
         project.assetList = project.assetList.filter((asset) => !asset.id.startsWith('extensions/'));
       }
-      project.fileList = project.fileList.map(({ content, script, extensions, ...data }) => {
-        extensionSet = extensionSet.union(new Set(extensions));
-        return data;
-      });
+      if (project.fileList) {
+        project.fileList = project.fileList.map(({ content, script, extensions, ...data }) => {
+          extensionSet = extensionSet.union(new Set(extensions));
+          return data;
+        });
+      }
       project.editor.extensions = Array.from(extensionSet);
 
       if (DEVELOPMENT) {
