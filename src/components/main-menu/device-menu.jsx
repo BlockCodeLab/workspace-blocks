@@ -140,7 +140,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
               let files = onDownload ? onDownload(name, fileList, assetList) : [].concat((fileList, assetList));
               files = files.map((file) => ({
                 ...file,
-                id: file.id[0] !== '_' ? `proj${key}/${file.id}` : file.id,
+                id: file.id.startsWith('extensions/') ? file.id : `proj${key}/${file.id}`,
               }));
               downloadingAlert(0);
               if (await checkFlash(currentDevice, files)) {
