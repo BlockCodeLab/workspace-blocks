@@ -1,21 +1,13 @@
-import { useLocale, useLayout, useEditor } from '@blockcode/core';
+import { useLayout, useEditor } from '@blockcode/core';
 import { Text, Spinner, MenuSection, MenuItem } from '@blockcode/ui';
-import {
-  connectDevice,
-  disconnectDevice,
-  checkFlash,
-  writeFiles,
-  configDevice,
-  showDownloadScreen,
-} from '@blockcode/device-pyboard';
+import { connectDevice, checkDevice, checkFlashFree, writeFiles, configDevice } from '@blockcode/device-pyboard';
 import defaultDeviceFilters from '../../lib/device-filters.yaml';
 
 let downloadAlertId = null;
 
-export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, downloadScreen, onDownload, children }) {
-  const { maybeLocaleText } = useLocale();
+export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, onBeforeDownload, children }) {
   const { createAlert, removeAlert, createPrompt } = useLayout();
-  const { key, name, fileList, assetList, device, setDevice } = useEditor();
+  const { key, name, fileList, assetList } = useEditor();
 
   const downloadingAlert = (progress) => {
     if (!downloadAlertId) {
@@ -44,7 +36,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
           />
         ),
       });
-      setTimeout(removeDownloading, 1000);
+      setTimeout(removeDownloading, 2000);
     }
   };
 
@@ -53,74 +45,30 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
     downloadAlertId = null;
   };
 
-  const errorAlert = () => {
+  const errorAlert = (err) => {
+    if (err === 'NotFoundError') return;
     createAlert(
       {
-        message: (
-          <Text
-            id="blocks.alert.connectionError"
-            defaultMessage="Connection error."
-          />
-        ),
+        message:
+          err === 'NotFoundError' ? (
+            <Text
+              id="blocks.alert.connectionCancel"
+              defaultMessage="Connection cancel."
+            />
+          ) : (
+            <Text
+              id="blocks.alert.connectionError"
+              defaultMessage="Connection error."
+            />
+          ),
       },
       1000,
     );
   };
 
-  if (downloadAlertId && !device) {
-    errorAlert();
-    removeDownloading();
-  }
-
   return (
     <>
       <MenuSection>
-        {/* <MenuItem
-          className={itemClassName}
-          label={
-            device ? (
-              <Text
-                id="blocks.menu.device.disconnect"
-                defaultMessage="Disconnect this {name}"
-                name={maybeLocaleText(
-                  deviceName || (
-                    <Text
-                      id="blocks.menu.device.name"
-                      defaultMessage="device"
-                    />
-                  ),
-                )}
-              />
-            ) : (
-              <Text
-                id="blocks.menu.device.connect"
-                defaultMessage="Connect your {name}"
-                name={maybeLocaleText(
-                  deviceName || (
-                    <Text
-                      id="blocks.menu.device.name"
-                      defaultMessage="device"
-                    />
-                  ),
-                )}
-              />
-            )
-          }
-          onClick={async () => {
-            if (device) {
-              await disconnectDevice(device, setDevice);
-              if (downloadAlertId) {
-                removeAlert(downloadAlertId);
-                delete downloadAlertId;
-              }
-            } else {
-              try {
-                await connectDevice(deviceFilters || defaultDeviceFilters, setDevice);
-              } catch (err) {}
-            }
-          }}
-        /> */}
-
         <MenuItem
           disabled={downloadAlertId}
           className={itemClassName}
@@ -132,22 +80,34 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
           }
           onClick={async () => {
             if (downloadAlertId) return;
+
+            let currentDevice;
             try {
-              const currentDevice = device || (await connectDevice(deviceFilters || defaultDeviceFilters, setDevice));
-              if (downloadScreen) {
-                await showDownloadScreen(currentDevice, downloadScreen);
-              }
-              let files = onDownload ? onDownload(name, fileList, assetList) : [].concat((fileList, assetList));
-              files = files.map((file) => ({
-                ...file,
-                id: file.id.startsWith('extensions/') ? file.id : `proj${key}/${file.id}`,
-              }));
-              downloadingAlert(0);
-              if (await checkFlash(currentDevice, files)) {
+              currentDevice = await connectDevice(deviceFilters || defaultDeviceFilters);
+            } catch (err) {
+              errorAlert(err.name);
+            }
+            if (!currentDevice) return;
+
+            const checker = checkDevice(currentDevice).catch(() => {
+              errorAlert();
+              removeDownloading();
+            });
+
+            let files = onBeforeDownload ? onBeforeDownload(name, fileList, assetList) : [].concat(fileList, assetList);
+            files = files.map((file) => ({
+              ...file,
+              id: file.id.startsWith('extensions/') ? file.id : `proj${key}/${file.id}`,
+            }));
+            downloadingAlert(0);
+
+            try {
+              if (await checkFlashFree(currentDevice, files)) {
                 await writeFiles(currentDevice, files, downloadingAlert);
                 await configDevice(currentDevice, {
                   'latest-project': key,
                 });
+                currentDevice.hardReset();
               } else {
                 createPrompt({
                   title: deviceName || (
@@ -165,11 +125,11 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, d
                 });
                 removeDownloading();
               }
-              currentDevice.hardReset();
             } catch (err) {
-              console.log(err);
-              errorAlert();
+              errorAlert(err.name);
               removeDownloading();
+            } finally {
+              checker.cancel();
             }
           }}
         />

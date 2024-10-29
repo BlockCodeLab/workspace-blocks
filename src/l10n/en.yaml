@@ -17,6 +17,7 @@ blocks.menu.device.turnOffAutoDownload: Turn off Auto Download
 
 blocks.alert.downloading: Downloading...{progress}%
 blocks.alert.downloadCompleted: Download completed.
+blocks.alert.connectionCancel: Connection cancel.
 blocks.alert.connectionError: Connection error.
 blocks.alert.flashOutSpace: The flash is running out of space.
 
@@ -47,6 +48,6 @@ blocks.myBlockPrompt.reporterBoolean: Return boolean
 blocks.event.programStart: when program start
 blocks.control.stopOther: other scripts
 
-blocks.myblock.addLabel: " label text"
+blocks.myblock.addLabel: ' label text'
 blocks.myblock.addBoolean: boolean
 blocks.myblock.addNumbetText: number or text

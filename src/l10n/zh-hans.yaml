@@ -17,6 +17,7 @@ blocks.menu.device.turnOffAutoDownload: 关闭自动下载
 
 blocks.alert.downloading: 正在下载…{progress}%
 blocks.alert.downloadCompleted: 下载完成。
+blocks.alert.connectionCancel: 连接取消。
 blocks.alert.connectionError: 连接错误。
 blocks.alert.flashOutSpace: 设备空间不足。
 

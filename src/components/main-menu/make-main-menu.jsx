@@ -14,8 +14,7 @@ export default function makeMainMenu({
   createProject,
   openProject,
   saveProject,
-  downloadProjectToDevice,
-  showDownloadScreen,
+  beforeDownload,
 }) {
   return [
     {
@@ -60,8 +59,7 @@ export default function makeMainMenu({
           deviceName={deviceName}
           itemClassName={itemClassName}
           deviceFilters={deviceFilters}
-          downloadScreen={showDownloadScreen}
-          onDownload={downloadProjectToDevice}
+          onBeforeDownload={beforeDownload}
         >
           {children}
         </DeviceMenu>
