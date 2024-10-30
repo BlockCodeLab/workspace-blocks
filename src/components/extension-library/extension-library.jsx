@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { useLocale, useLayout, useEditor } from '@blockcode/core';
+import { useLocale } from '@blockcode/core';
 import { Library } from '@blockcode/ui';
 import allExtensions from './extensions';
 
@@ -9,19 +9,17 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const { language, getText } = useLocale();
-  const { createAlert, removeAlert } = useLayout();
-  const { addAsset } = useEditor();
 
   const handleFilter = (extensionInfo) => {
     const tags = extensionInfo.tags || [];
-    let filter = ['blocks', ['dupont', 'data'], ['3v3', '5v']];
+    let filter = ['blocks'];
     if (onFilter) {
       filter = onFilter(tags);
     }
     if (Array.isArray(filter)) {
-      return filter.every((subfilter) => {
+      return filter.some((subfilter) => {
         if (Array.isArray(subfilter)) {
-          return subfilter.some((item) => tags.includes(item));
+          return subfilter.every((item) => (item[0] === '!' ? !tags.includes(item.slice(1)) : tags.includes(item)));
         }
         return tags.includes(subfilter);
       });
