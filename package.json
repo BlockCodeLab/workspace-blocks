@@ -1,5 +1,6 @@
 {
   "name": "@blockcode/workspace-blocks",
+  "version": "0.5.0",
   "module": "dist/index.js",
   "exports": {
     ".": {
