@@ -35,6 +35,7 @@ export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter
             {
               ...extensionInfo,
               featured: true,
+              hidden: extensionInfo.hidden || (window.electron && (extensionInfo.preview || extensionInfo.disabled)),
               disabled: extensionInfo.disabled || (!DEVELOPMENT && extensionInfo.preview),
               onSelect: () => {
                 onSelect(extensionInfo.id);
