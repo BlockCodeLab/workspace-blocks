@@ -96,7 +96,7 @@ export default function BlocksEditor({
 
     ScratchBlocks.FlyoutExtensionCategoryHeader.getExtensionState = (extensionId) => {
       if (!loadedExtensions.has(extensionId)) return;
-        const extensionObject = loadedExtensions.get(extensionId);
+      const extensionObject = loadedExtensions.get(extensionId);
       const { statusButton } = extensionObject;
       if (!statusButton) {
         return ScratchBlocks.StatusButtonState.NOT_READY;
@@ -124,20 +124,20 @@ export default function BlocksEditor({
       if (!statusButton) return;
 
       if (statusButton.storage) {
-      createPrompt({
-        title: extensionObject.name,
+        createPrompt({
+          title: extensionObject.name,
           label: statusButton.title,
           inputMode: statusButton.storage.map((item) => ({
-          name: item.id,
-          placeholder: item.text,
+            name: item.id,
+            placeholder: item.text,
             defaultValue: localStorage.getItem(item.id),
-        })),
+          })),
           body: statusButton.description,
-        onSubmit: (value) => {
+          onSubmit: (value) => {
             Object.entries(value).forEach(([key, val]) => localStorage.setItem(key, val));
             refreshStatusButtons();
-        },
-      });
+          },
+        });
         return;
       }
 
@@ -188,7 +188,7 @@ export default function BlocksEditor({
   const generateCode = (workspace) => {
     let content = '\n';
     if (!disableGenerator) {
-      content = generators[0].workspaceToCode(workspace);
+      content = generators[0]?.workspaceToCode(workspace);
     }
     // save extensions
     const extensions = Array.from(
@@ -284,7 +284,7 @@ export default function BlocksEditor({
       );
     }
     // load files' blocks one by one
-    if (extensionsImported === true) {
+    if (workspace && extensionsImported === true) {
       const defaultSelectedFileId = splash;
       if (fileList.length === 1 || defaultSelectedFileId === selectedFileId) {
         // loading finish
@@ -295,15 +295,15 @@ export default function BlocksEditor({
         // load file
         const index = fileList.findIndex((file) => file.id === selectedFileId) || 0;
         const file = fileList[index];
-        if (file.content) {
-          const nextFileId = fileList.at(index - 1).id;
-          setTimeout(() => {
-            if (splash === true) {
-              setSplash(selectedFileId);
-            }
+        const nextFileId = fileList.at(index - 1).id;
+        setTimeout(() => {
+          if (splash === true) {
+            setSplash(selectedFileId);
             openFile(nextFileId);
-          });
-        }
+          } else if (file.content) {
+            openFile(nextFileId);
+          }
+        });
       }
     }
   }
