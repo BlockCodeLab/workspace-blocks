@@ -95,42 +95,53 @@ export default function BlocksEditor({
     };
 
     ScratchBlocks.FlyoutExtensionCategoryHeader.getExtensionState = (extensionId) => {
-      if (loadedExtensions.has(extensionId)) {
+      if (!loadedExtensions.has(extensionId)) return;
         const extensionObject = loadedExtensions.get(extensionId);
-        if (
-          extensionObject.connectionConfig?.items.every((item) =>
-            localStorage.getItem(`${extensionObject.id}.connection.${item.id}`),
-          )
-        ) {
+      const { statusButton } = extensionObject;
+      if (!statusButton) {
+        return ScratchBlocks.StatusButtonState.NOT_READY;
+      }
+
+      if (statusButton.storage) {
+        if (statusButton.storage.every((item) => localStorage.getItem(item.id))) {
           return ScratchBlocks.StatusButtonState.READY;
         }
+        return ScratchBlocks.StatusButtonState.NOT_READY;
+      }
+
+      if (statusButton.onUpdate?.()) {
+        return ScratchBlocks.StatusButtonState.READY;
       }
       return ScratchBlocks.StatusButtonState.NOT_READY;
     };
 
+    const refreshStatusButtons = () => ScratchBlocks.refreshStatusButtons(workspace);
+
     ScratchBlocks.statusButtonCallback = (extensionId) => {
       if (!loadedExtensions.has(extensionId)) return;
       const extensionObject = loadedExtensions.get(extensionId);
-      const { connectionConfig } = extensionObject;
-      if (!connectionConfig) return;
+      const { statusButton } = extensionObject;
+      if (!statusButton) return;
+
+      if (statusButton.storage) {
       createPrompt({
         title: extensionObject.name,
-        label: connectionConfig.title,
-        inputMode: connectionConfig.items.map((item) => ({
+          label: statusButton.title,
+          inputMode: statusButton.storage.map((item) => ({
           name: item.id,
           placeholder: item.text,
-          defaultValue: localStorage.getItem(`${extensionObject.id}.connection.${item.id}`),
+            defaultValue: localStorage.getItem(item.id),
         })),
-        body: connectionConfig.description,
+          body: statusButton.description,
         onSubmit: (value) => {
-          Object.entries(value).forEach(([key, val]) => {
-            localStorage.setItem(`${extensionObject.id}.connection.${key}`, `${val}`);
-          });
-          if (workspace) {
-            ScratchBlocks.refreshStatusButtons(workspace);
-          }
+            Object.entries(value).forEach(([key, val]) => localStorage.setItem(key, val));
+            refreshStatusButtons();
         },
       });
+        return;
+      }
+
+      statusButton.onClick?.(refreshStatusButtons);
     };
 
     ScratchBlocks.Procedures.externalProcedureDefCallback = (mutator, defCallback) => {
