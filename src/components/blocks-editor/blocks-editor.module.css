@@ -43,26 +43,3 @@
   width: 1.75rem;
   height: 1.75rem;
 }
-
-/* debug box */
-
-.debug-box {
-  position: absolute;
-  width: 600px;
-  height: 300px;
-  bottom: 0;
-  left: 50vw;
-  transform: translateX(-50%);
-  z-index: var(--z-index-monitor);
-  background: white;
-  border: 1px solid var(--ui-tertiary);
-  border-bottom: 0;
-  border-radius: var(--space) var(--space) 0 0;
-  opacity: 0.8;
-  overflow: auto;
-  font-size: var(--standard-font-size);
-}
-
-.debug-box pre {
-  margin: calc(var(--space) / 2);
-}

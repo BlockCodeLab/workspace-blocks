@@ -22,6 +22,7 @@ blocks.alert.connectionError: 连接错误。
 blocks.alert.flashOutSpace: 设备空间不足。
 
 blocks.codeTab: 代码
+blocks.reviewTab: 代码审查
 
 blocks.monitorPane.title: 监视器
 

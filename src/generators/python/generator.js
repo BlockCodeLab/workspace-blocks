@@ -105,13 +105,6 @@ export class PythonGenerator extends ScratchBlocks.Generator {
       // a or (b or c) -> a or b or c
       [this.ORDER_LOGICAL_OR, this.ORDER_LOGICAL_OR],
     ];
-
-    // Bind prototype functions to this object
-    for (const key in PythonGenerator.prototype) {
-      if (typeof PythonGenerator.prototype[key] === 'function') {
-        PythonGenerator.prototype[key] = PythonGenerator.prototype[key].bind(this);
-      }
-    }
   }
 
   /**
@@ -119,6 +112,13 @@ export class PythonGenerator extends ScratchBlocks.Generator {
    * @param {!ScratchBlocks.Workspace} workspace Workspace to generate code from.
    */
   init(workspace) {
+    // Bind prototype functions to this object
+    for (const key in this) {
+      if (typeof this[key] === 'function' && !ScratchBlocks.Generator.prototype[key]) {
+        this[key] = this[key].bind(this);
+      }
+    }
+
     /**
      * Empty loops or conditionals are not allowed in Python.
      */

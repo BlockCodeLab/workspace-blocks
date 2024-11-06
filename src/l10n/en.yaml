@@ -22,6 +22,7 @@ blocks.alert.connectionError: Connection error.
 blocks.alert.flashOutSpace: The flash is running out of space.
 
 blocks.codeTab: Code
+blocks.reviewTab: Code Review
 
 blocks.monitorPane.title: Monitor
 

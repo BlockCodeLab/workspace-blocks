@@ -16,5 +16,6 @@ class DefaultPythonGenerator extends PythonGenerator {
     this.definitions_['import_blocks'] = 'from blocks import *';
   }
 }
+const pythonGenerator = new DefaultPythonGenerator();
 
-export { PythonGenerator, DefaultPythonGenerator };
+export { PythonGenerator, pythonGenerator };

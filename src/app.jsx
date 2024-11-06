@@ -4,13 +4,15 @@ import makeMainMenu from './components/main-menu/make-main-menu';
 import defaultProject from './lib/default-project';
 
 /* generator */
-import { PythonGenerator, DefaultPythonGenerator } from './generators/python';
+import { PythonGenerator, pythonGenerator } from './generators/python';
 
 /* components */
 import BlocksEditor from './components/blocks-editor/blocks-editor';
+import CodeReview from './components/code-review/code-review';
 
 /* assets */
 import blocksIcon from './icon-blocks.svg';
+import reviewIcon from './icon-review.svg';
 
 /* languages */
 import locales from './l10n';
@@ -24,6 +26,17 @@ const codeTab = {
     />
   ),
   Content: BlocksEditor,
+};
+
+const reviewTab = {
+  icon: reviewIcon,
+  label: (
+    <Text
+      id="blocks.reviewTab"
+      defaultMessage="Code Review"
+    />
+  ),
+  Content: CodeReview,
 };
 
 const monitorPane = {
@@ -50,9 +63,9 @@ export default function BlocksWorkspace({ addLocaleData, openProject }) {
     tabs: [
       {
         ...codeTab,
-        Content: () => <BlocksEditor generators={[new DefaultPythonGenerator()]} />,
+        Content: () => <BlocksEditor generators={[pythonGenerator]} />,
       },
-    ],
+    ].concat(DEVELOPMENT ? reviewTab : []),
 
     sidebars: [],
 
@@ -68,4 +81,4 @@ export default function BlocksWorkspace({ addLocaleData, openProject }) {
   };
 }
 
-export { locales, makeMainMenu, codeTab, monitorPane, PythonGenerator };
+export { locales, makeMainMenu, codeTab, reviewTab, monitorPane, PythonGenerator };

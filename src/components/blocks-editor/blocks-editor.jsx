@@ -356,12 +356,6 @@ export default function BlocksEditor({
           />
         )}
       </div>
-
-      {DEVELOPMENT && !disableGenerator && (
-        <div className={styles.debugBox}>
-          <pre>{fileList.find((file) => file.id === selectedFileId).content}</pre>
-        </div>
-      )}
     </>
   );
 }
