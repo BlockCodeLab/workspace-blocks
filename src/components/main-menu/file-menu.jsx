@@ -52,7 +52,7 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
   };
 
   const wrapperSavedAlert = (handler) => async () => {
-    handler(await saveProject());
+    await handler(await saveProject());
     createAlert(
       {
         message: (
@@ -146,7 +146,9 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
               defaultMessage="save to your computer"
             />
           }
-          onClick={wrapperSavedAlert(saveToComputer)}
+          onClick={
+            window.electron ? async () => saveToComputer(await saveProject()) : wrapperSavedAlert(saveToComputer)
+          }
         />
       </MenuSection>
 
