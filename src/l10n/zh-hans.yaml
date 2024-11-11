@@ -4,6 +4,7 @@ blocks.menu.file.openProject: 打开
 blocks.menu.file.saveProject: 保存
 blocks.menu.file.uploadProject: 从电脑中打开
 blocks.menu.file.downloadProject: 保存到电脑
+blocks.menu.file.saveAlert: 已保存。
 blocks.menu.edit: 编辑
 blocks.menu.edit.undo: 撤销
 blocks.menu.edit.redo: 恢复

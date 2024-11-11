@@ -4,6 +4,7 @@ blocks.menu.file.openProject: Open
 blocks.menu.file.saveProject: Save
 blocks.menu.file.uploadProject: Load from your computer
 blocks.menu.file.downloadProject: Save to your computer
+blocks.menu.file.saveAlert: Saved.
 blocks.menu.edit: Edit
 blocks.menu.edit.undo: Undo
 blocks.menu.edit.redo: Redo

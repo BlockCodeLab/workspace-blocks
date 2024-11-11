@@ -1,4 +1,3 @@
-import { readExtensions } from '../../macros/extensions' with { type: 'macro' };
 import { svgAsDataUri } from 'save-svg-as-png';
 import { Keys, useLayout, useEditor } from '@blockcode/core';
 import { Text, MenuSection, MenuItem } from '@blockcode/ui';
@@ -7,7 +6,7 @@ import { ScratchBlocks } from '@blockcode/blocks-editor';
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent);
 
 export default function FileMenu({ itemClassName, onNew, onOpen, onSave, children }) {
-  const { createPrompt, setStoreLibrary } = useLayout();
+  const { createAlert, createPrompt, setStoreLibrary } = useLayout();
   const { modified, saveNow, saveToComputer, openFromComputer } = useEditor();
 
   const handleSave = (data) => {
@@ -50,6 +49,21 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
       }
       return project;
     };
+  };
+
+  const wrapperSavedAlert = (handler) => async () => {
+    handler(await saveProject());
+    createAlert(
+      {
+        message: (
+          <Text
+            id="blocks.menu.file.saveAlert"
+            defaultMessage="Saved."
+          />
+        ),
+      },
+      2000,
+    );
   };
 
   return (
@@ -108,7 +122,7 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
             />
           }
           hotkey={[isMac ? Keys.COMMAND : Keys.CONTROL, Keys.S]}
-          onClick={async () => saveNow(await saveProject())}
+          onClick={wrapperSavedAlert(saveNow)}
         />
       </MenuSection>
 
@@ -132,7 +146,7 @@ export default function FileMenu({ itemClassName, onNew, onOpen, onSave, childre
               defaultMessage="save to your computer"
             />
           }
-          onClick={async () => saveToComputer(await saveProject())}
+          onClick={wrapperSavedAlert(saveToComputer)}
         />
       </MenuSection>
 
