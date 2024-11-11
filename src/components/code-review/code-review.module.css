@@ -24,4 +24,7 @@
   border-right: 1px solid #ddd;
   padding: 0 0.5em;
   margin-right: 0.5em;
+  width: 40px;
+  text-align: right;
+  color: var(--text-primary-transparent);
 }
