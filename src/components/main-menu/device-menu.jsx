@@ -1,7 +1,6 @@
 import { useLayout, useEditor } from '@blockcode/core';
 import { Text, Spinner, MenuSection, MenuItem } from '@blockcode/ui';
 import { connectDevice, checkDevice, checkFlashFree, writeFiles, configDevice } from '@blockcode/device-pyboard';
-import defaultDeviceFilters from '../../lib/device-filters.yaml';
 
 let downloadAlertId = null;
 
@@ -83,7 +82,7 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, o
 
             let currentDevice;
             try {
-              currentDevice = await connectDevice(deviceFilters || defaultDeviceFilters);
+              currentDevice = await connectDevice(deviceFilters || []);
             } catch (err) {
               errorAlert(err.name);
             }
@@ -94,11 +93,9 @@ export default function DeviceMenu({ itemClassName, deviceName, deviceFilters, o
               removeDownloading();
             });
 
-            let files = onBeforeDownload ? onBeforeDownload(name, fileList, assetList) : [].concat(fileList, assetList);
-            files = files.map((file) => ({
-              ...file,
-              id: file.id.startsWith('extensions/') ? file.id : `proj${key}/${file.id}`,
-            }));
+            const files = onBeforeDownload
+              ? onBeforeDownload({ key, name }, fileList, assetList)
+              : [].concat(fileList, assetList);
             downloadingAlert(0);
 
             try {

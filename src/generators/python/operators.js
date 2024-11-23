@@ -54,7 +54,7 @@ pythonGenerator['operator_lt'] = function (block) {
 pythonGenerator['operator_equals'] = function (block) {
   const operand1Code = this.valueToCode(block, 'OPERAND1', this.ORDER_NONE) || 0;
   const operand2Code = this.valueToCode(block, 'OPERAND2', this.ORDER_NONE) || 0;
-  const code = `equals(${operand1Code}, ${operand2Code})`;
+  const code = `runtime.equals(${operand1Code}, ${operand2Code})`;
   return [code, this.ORDER_FUNCTION_CALL];
 };
 
@@ -86,10 +86,10 @@ pythonGenerator['operator_join'] = function (block) {
 };
 
 pythonGenerator['operator_letter_of'] = function (block) {
-  const letterValue = this.valueToCode(block, 'LETTER', this.ORDER_NONE) || 0;
+  const letterValue = this.valueToCode(block, 'LETTER', this.ORDER_NONE) || 1;
   const stringValue = this.valueToCode(block, 'STRING', this.ORDER_NONE) || '""';
-  const code = `(str(${stringValue})[num(${letterValue}) - 1] || "")`;
-  return [code, this.ORDER_MEMBER];
+  const code = `runtime.list(str(${stringValue}), 'get', num(${letterValue}))`;
+  return [code, this.ORDER_FUNCTION_CALL];
 };
 
 pythonGenerator['operator_length'] = function (block) {

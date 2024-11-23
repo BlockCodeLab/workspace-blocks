@@ -15,24 +15,23 @@ const loadedExtensions = new Map();
 
 const blockFilter = (block) => typeof block !== 'string' && !block.button;
 
-const importExtensions = async (deviceId, extensions, addLocaleData, addAsset, onLoadExtension) => {
+const importExtensions = async (extensions, addLocaleData, addAsset, onLoadExtension) => {
   if (extensions) {
     for (const extensionId of extensions) {
       if (!loadedExtensions.has(extensionId)) {
         let { default: extensionObject } = await import(`@blockcode/extension-${extensionId}/blocks`);
-        if (typeof extensionObject === 'function') {
-          extensionObject = extensionObject(deviceId);
-        }
         extensionObject.id = extensionId;
         if (extensionObject.files) {
           for (const file of extensionObject.files) {
             const id = `extensions/${extensionId}/${file.name}`;
             const content = await fetch(file.uri).then((res) => res.text());
-            addAsset({
-              ...file,
-              id,
-              content,
-            });
+            try {
+              addAsset({
+                ...file,
+                id,
+                content,
+              });
+            } catch (err) {}
           }
         }
         addLocaleData(extensionObject.translations);
@@ -56,7 +55,6 @@ export default function BlocksEditor({
   enableLocalVariable,
   disableGenerator,
   disableExtension,
-  deviceId,
   onChange,
   onExtensionsFilter,
   onLoadExtension,
@@ -242,19 +240,18 @@ export default function BlocksEditor({
     if (!loadedExtensions.has(extensionId)) {
       createAlert('importing', { id: extensionId });
       let { default: extensionObject } = await import(`@blockcode/extension-${extensionId}/blocks`);
-      if (typeof extensionObject === 'function') {
-        extensionObject = extensionObject(deviceId);
-      }
       extensionObject.id = extensionId;
       if (extensionObject.files) {
         for (const file of extensionObject.files) {
           const id = `extensions/${extensionId.replace(/[^a-z\d]/gi, '_')}/${file.name}`;
           const content = await fetch(file.uri).then((res) => res.text());
-          addAsset({
-            ...file,
-            id,
-            content,
-          });
+          try {
+            addAsset({
+              ...file,
+              id,
+              content,
+            });
+          } catch (err) {}
         }
       }
       addLocaleData(extensionObject.translations);
@@ -278,13 +275,14 @@ export default function BlocksEditor({
       loadedExtensions.clear();
       // import extensions
       setExtensionsImported(
-        importExtensions(deviceId, editor.extensions, addLocaleData, addAsset, onLoadExtension).then(() => {
+        importExtensions(editor.extensions, addLocaleData, addAsset, onLoadExtension).then(() => {
           setTimeout(() => setExtensionsImported(true), 50);
         }),
       );
     }
     // load files' blocks one by one
     if (workspace && extensionsImported === true) {
+      globalVariables = [];
       const defaultSelectedFileId = splash;
       if (fileList.length === 1 || defaultSelectedFileId === selectedFileId) {
         // loading finish
@@ -360,7 +358,6 @@ export default function BlocksEditor({
         )}
         {extensionLibrary && (
           <ExtensionLibrary
-            deviceId={deviceId}
             onFilter={onExtensionsFilter}
             onSelect={handleSelectExtension}
             onClose={handleExtensionLibraryClose}

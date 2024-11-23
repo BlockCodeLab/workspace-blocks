@@ -21,6 +21,7 @@ const MY_BLOCK_DEFAULT_OPTIONS = {
 export default function MyBlockPrompt({ mutator, onClose, onSubmit }) {
   const ref = useRef(null);
   const [type, setType] = useState('command');
+  const [flash, setFlash] = useState(false);
 
   const handleChangeType = () => {};
 
@@ -40,6 +41,12 @@ export default function MyBlockPrompt({ mutator, onClose, onSubmit }) {
     if (ref.mutationRoot) {
       ref.mutationRoot.addStringNumberExternal();
     }
+  };
+
+  const handleSetFlash = () => {
+    const flash = !ref.mutationRoot.getWarp();
+    ref.mutationRoot.setWarp(flash);
+    setFlash(flash);
   };
 
   const handleSubmit = () => {
@@ -82,6 +89,7 @@ export default function MyBlockPrompt({ mutator, onClose, onSubmit }) {
       ref.mutationRoot.domToMutation(mutator);
       ref.mutationRoot.initSvg();
       ref.mutationRoot.render();
+      setFlash(ref.mutationRoot.getWarp());
       // Allow the initial events to run to position this block, then focus.
       setTimeout(() => {
         ref.mutationRoot.focusLastEditor_();
@@ -215,6 +223,19 @@ export default function MyBlockPrompt({ mutator, onClose, onSubmit }) {
           </label>
         </div>
         */}
+        <div className={styles.checkboxRow}>
+          <label>
+            <input
+              checked={flash}
+              type="checkbox"
+              onChange={handleSetFlash}
+            />
+            <Text
+              id="blocks.myBlockPrompt.flash"
+              defaultMessage="Run without process."
+            />
+          </label>
+        </div>
         <div className={styles.buttonRow}>
           <Button
             className={styles.button}

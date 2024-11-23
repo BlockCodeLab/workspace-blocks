@@ -43,6 +43,7 @@ blocks.myBlockPrompt.numberTextType: 数字或文本
 blocks.myBlockPrompt.addAnInputBoolean: 添加输入项
 blocks.myBlockPrompt.booleanType: 布尔值
 blocks.myBlockPrompt.addALabel: 添加文本标签
+blocks.myBlockPrompt.flash: 运行时跳过过程。
 blocks.myBlockPrompt.command: 无返回值
 blocks.myBlockPrompt.reporterNumberText: 返回数字或文本
 blocks.myBlockPrompt.reporterBoolean: 返回布尔值

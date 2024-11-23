@@ -5,7 +5,7 @@ import allExtensions from './extensions';
 
 const loadingExtensions = Promise.all(allExtensions);
 
-export default function ExtensionLibrary({ deviceId, onSelect, onClose, onFilter }) {
+export default function ExtensionLibrary({ onSelect, onClose, onFilter }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const { language, getText } = useLocale();

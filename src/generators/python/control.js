@@ -1,6 +1,6 @@
 import { pythonGenerator } from './generator';
 
-const NEXT_LOOP = '  await runtime.next_frame()\n';
+const NEXT_LOOP = '  if not flash:\n    await runtime.next_frame()\n';
 
 pythonGenerator['control_wait'] = function (block) {
   let code = '';
@@ -128,7 +128,7 @@ pythonGenerator['control_stop'] = function (block) {
       code += 'return\n';
       break;
     case 'other scripts in sprite':
-      code += 'runtime.stop_tasks(this_func)\n';
+      code += 'runtime.abort(this_func)\n';
       break;
   }
   return code;

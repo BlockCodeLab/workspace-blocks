@@ -324,18 +324,18 @@ export class PythonGenerator extends ScratchBlocks.Generator {
     return at;
   }
 
-  functionToCode(funcName, args) {
-    return `async def ${funcName}(${args.join(',')}):\n  this_func = ${funcName}\n${this.PASS}\n`;
-  }
-
-  eventToCode(name, ...args) {
+  eventToCode(name, flash, ...args) {
     const nameId = this.variableDB_.getName(name, ScratchBlocks.Variables.NAME_TYPE);
     if (!this.functionNames_[nameId]) {
       this.functionNames_[nameId] = 0;
     }
     this.functionNames_[nameId] += 1;
     const funcName = `${name}_${this.functionNames_[nameId]}`;
-    return this.functionToCode(funcName, args);
+    let funcCode = `async def ${funcName}(${args.join(',')}):\n`;
+    funcCode += `  this_func = f"{__name__}.${funcName}"\n`;
+    funcCode += `  flash = ${flash}\n`;
+    funcCode += `${this.PASS}\n`;
+    return funcCode;
   }
 }
 

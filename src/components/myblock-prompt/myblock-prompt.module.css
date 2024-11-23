@@ -8,8 +8,8 @@
   padding: 1.5rem 2.25rem;
 }
 
-.body input[type="checkbox"],
-.body input[type="radio"] {
+.body input[type='checkbox'],
+.body input[type='radio'] {
   margin: 3px;
 }
 
@@ -19,7 +19,7 @@
   position: relative;
 }
 
-.workspace :global(.injectionDiv){
+.workspace :global(.injectionDiv) {
   position: absolute;
   top: 0;
   right: 0;
@@ -73,6 +73,10 @@
   font-weight: normal;
   justify-content: space-between;
   margin: 1rem 6rem 1.5rem;
+}
+
+.checkbox-row {
+  margin-top: 1rem;
 }
 
 /* Confirmation buttons at the bottom of the modal */

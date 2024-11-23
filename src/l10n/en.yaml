@@ -43,6 +43,7 @@ blocks.myBlockPrompt.numberTextType: number or text
 blocks.myBlockPrompt.addAnInputBoolean: Add an input
 blocks.myBlockPrompt.booleanType: boolean
 blocks.myBlockPrompt.addALabel: Add a label
+blocks.myBlockPrompt.flash: Run without screen refresh
 blocks.myBlockPrompt.command: Command
 blocks.myBlockPrompt.reporterNumberText: Return number or text
 blocks.myBlockPrompt.reporterBoolean: Return boolean

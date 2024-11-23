@@ -1,5 +1,6 @@
 import { Text } from '@blockcode/ui';
 import makeMainMenu from './components/main-menu/make-main-menu';
+import mpy from './lib/mpy';
 
 import defaultProject from './lib/default-project';
 
@@ -49,16 +50,22 @@ const monitorPane = {
   Content: null,
 };
 
-export default function BlocksWorkspace({ addLocaleData, openProject }) {
+const beforeDownload = (info, fileList, assetList) => {
+  return [].concat(fileList, assetList, mpy);
+};
+
+export default function BlocksWorkspace({ addLocaleData, openProject, useDefaultProject }) {
   addLocaleData(locales);
 
   const createProject = () => {
     openProject(Object.assign(defaultProject));
   };
-  createProject();
+  if (useDefaultProject) {
+    createProject();
+  }
 
   return {
-    mainMenu: makeMainMenu({ createProject, openProject }),
+    mainMenu: makeMainMenu({ createProject, openProject, beforeDownload }),
 
     tabs: [
       {
@@ -71,13 +78,9 @@ export default function BlocksWorkspace({ addLocaleData, openProject }) {
 
     pane: false, // monitorPane,
 
-    tutorials: true,
+    tutorials: false,
 
     canEditProjectName: true,
-
-    defaultFileIndex: 0,
-
-    defaultTabIndex: 0,
   };
 }
 

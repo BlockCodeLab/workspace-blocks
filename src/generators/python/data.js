@@ -64,7 +64,7 @@ pythonGenerator['data_deleteoflist'] = function (block) {
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
   const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
-  code += `${listName}.remove(runtime.index(${indexCode}, len(${listName})))\n`;
+  code += `runtime.list(${listName}, 'remove', num(${indexCode}))\n`;
   return code;
 };
 
@@ -94,7 +94,7 @@ pythonGenerator['data_insertatlist'] = function (block) {
     ScratchBlocks.LIST_VARIABLE_TYPE;
   const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
   const itemValue = this.valueToCode(block, 'ITEM', this.ORDER_NONE) || '""';
-  code += `${listName}.insert(runtime.index(${indexCode}, len(${listName})), ${itemValue})\n`;
+  code += `runtime.list(${listName}, 'insert', num(${indexCode}), ${itemValue})\n`;
   return code;
 };
 
@@ -110,7 +110,7 @@ pythonGenerator['data_replaceitemoflist'] = function (block) {
     ScratchBlocks.LIST_VARIABLE_TYPE;
   const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
   const itemValue = this.valueToCode(block, 'ITEM', this.ORDER_NONE) || '""';
-  code += `${listName}[runtime.index(${indexCode}, len(${listName}))] = ${itemValue}\n`;
+  code += `runtime.list(${listName}, 'replace', num(${indexCode}), ${itemValue})\n`;
   return code;
 };
 
@@ -120,8 +120,8 @@ pythonGenerator['data_itemoflist'] = function (block) {
     '_' +
     ScratchBlocks.LIST_VARIABLE_TYPE;
   const indexCode = this.valueToCode(block, 'INDEX', this.ORDER_NONE) || 1;
-  const code = `${listName}[runtime.index(${indexCode}, len(${listName}))]`;
-  return [code, this.ORDER_CONDITIONAL];
+  const code = `runtime.list(${listName}, 'get', num(${indexCode}))`;
+  return [code, this.ORDER_FUNCTION_CALL];
 };
 
 pythonGenerator['data_itemnumoflist'] = function (block) {
